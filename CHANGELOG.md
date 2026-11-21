@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-20 — Scoped Oracle runtime verification
+
+- Inspected IIQ 8.3, its running JDK 17 service, saved Oracle connector/schema and existing Oracle Free target.
+- Executed user-approved synthetic LCM Create and Modify requests using a SELECT-only probe-table role; requests 14/13 reached Completed/Success after target readback, Link reconciliation and normal scoped verification scanning.
+- Preserved a first Create no-op, notification warnings, duplicate-guard results and the missing Create login privilege without inventing a complete custom workflow.
+- Added actual sanitized captures, original test source and a console XML builder. Historical claims remain separately evidence pending.
+
 ## 2026-11-20 — Initial engineering portfolio foundation
 
 - Preserved the original repository history and recorded its one-file baseline.

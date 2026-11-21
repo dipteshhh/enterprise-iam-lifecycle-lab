@@ -1,0 +1,17 @@
+// Newly authored source used for this scoped IIQ 8.3 lab. Review before use.
+import sailpoint.object.*;
+import sailpoint.api.*;
+import java.util.*;
+Attributes options=new Attributes();
+options.put(Identitizer.ARG_PROCESS_TRIGGERS,false);options.put(Identitizer.ARG_PROVISION,false);
+options.put(Identitizer.ARG_SYNCHRONIZE_ATTRIBUTES,false);options.put(Identitizer.ARG_CHECK_POLICIES,false);
+options.put(Identitizer.ARG_NO_MANAGER_CORRELATION,true);options.put(Identitizer.ARG_PROMOTE_ATTRIBUTES,false);
+options.put(Identitizer.ARG_REFRESH_PROVISIONING_REQUESTS,true);options.put(Identitizer.ARG_TRACE,false);
+List summaries=new ArrayList();
+for(String name:new String[]{"NS_LAB_CREATE_01","NS_LAB_MODIFY_01"}){
+ Identity subject=context.getObjectByName(Identity.class,name);
+ if(subject==null || !"oracle-create-modify-01".equals(subject.getAttribute("northstarLabMarker"))) throw new IllegalStateException("Synthetic marker mismatch");
+ Identitizer refresh=new Identitizer(context,options);refresh.setProcessTriggers(false);refresh.setPromoteAttributes(false);refresh.setRefreshProvisioningRequests(true);
+ refresh.refresh(subject);refresh.cleanup();context.commitTransaction();summaries.add(name+":targeted refresh returned");
+}
+return summaries;

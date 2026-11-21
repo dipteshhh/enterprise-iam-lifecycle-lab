@@ -25,7 +25,7 @@ git diff --check
 
 See [Java instructions](../scripts/java/README.md) for its independent test command. Mermaid validation used temporary npm packages solely as authoring tools; no dependencies, licensed vendor libraries or generated classes were added to the repository. The first parser attempt needed a DOM environment; the corrected environment parsed all diagrams. A sequence-label semicolon that caused a real syntax error was corrected before the successful run.
 
-## Not executed or established
+## Not executed during the initial foundation
 
 - No IIQ application import, BeanShell execution, workflow launch, aggregation or refresh was run.
 - No MySQL or Oracle setup/provisioning SQL was executed. SQL examples remain unverified against the actual lab engine/connector.
@@ -35,3 +35,7 @@ See [Java instructions](../scripts/java/README.md) for its independent test comm
 - Heuristic secret checks are not a complete secret-scanning/security audit. Ignored private local files are outside the publication candidate set.
 
 The validator operates on Git-tracked and nonignored candidate files and does not contact network services. It intentionally does not claim full Markdown parsing, fragment validation, Mermaid rendering, SQL execution or SailPoint schema validation. Passing repository checks must not promote historical integration rows to Verified.
+
+## Subsequent authorized runtime exercise
+
+[E-004](evidence/oracle-create-modify-2026-11-20.md) records actual Oracle fixture setup, installed IIQ 8.3 execution, scoped LCM approvals, independent target readback, targeted Link aggregation, request scanning and duplicate guards. This later work supersedes the initial no-runtime boundary only for that precise scope. Its XML builder also produced 12 well-formed documents with exact source round-trip checks. Original historical claims, other platforms and full custom-form completion remain outside that verification.

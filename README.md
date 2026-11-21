@@ -4,7 +4,7 @@ An independently developed IAM and identity security portfolio by **Diptesh Shah
 
 The focus is explainable implementation: how workforce data becomes an identity, how access is requested and provisioned, how failures are investigated, and how the result is verified. It does not claim production deployment or senior professional experience.
 
-> **Evidence boundary:** the existing repository contained only a short README. Historical lab work below is **Previously Completed, Evidence Pending** until original configuration or test evidence is reviewed. New code and fixtures are explicitly illustrative; local code checks do not verify live integrations. [Status register](docs/implementation-status.md) · [Evidence ledger](docs/evidence/README.md).
+> **Evidence boundary:** historical lab claims remain **Previously Completed, Evidence Pending** until original evidence is reviewed. A new, bounded **Oracle Create/Modify exercise is Verified** through actual IIQ requests, independent target readback and reconciled Links; this does not complete the original custom workflow. [Runtime evidence](docs/evidence/oracle-create-modify-2026-11-20.md) · [Status register](docs/implementation-status.md) · [Evidence ledger](docs/evidence/README.md).
 
 ## Northstar Health
 
@@ -15,7 +15,7 @@ Northstar Health is a fictional healthcare organization whose employees, contrac
 | Area | Scope and honest status |
 |---|---|
 | SailPoint IdentityIQ | Reported CSV aggregation, mapping, Identity Cubes, correlation, rules and workflow experiments; evidence pending |
-| Oracle Database | Reported account/entitlement aggregation, requests, approvals and RBAC; evidence pending |
+| Oracle Database | New scoped Create/Modify account/role tests Verified; broader historical aggregation, approvals and RBAC evidence pending |
 | MySQL JDBC | Reported connection, five-record practice table, aggregation and mapping troubleshooting; evidence pending |
 | Microsoft Entra ID connector | Reported connectivity/schema work; evidence pending. End-to-end lifecycle provisioning unverified |
 | Custom conditional provisioning | In Progress: Oracle Create/Modify design, eligible identity selection and failure handling |
@@ -39,6 +39,12 @@ flowchart LR
 ```
 
 [Current architecture](docs/architecture/current-lab.md) · [Target IIQ and ISC alternatives](docs/architecture/target-architecture.md) · [Aggregation, provisioning and federation diagrams](docs/architecture/engineering-flows.md).
+
+## Verified scoped runtime exercise
+
+[Oracle Create and Modify lab](sailpoint-identityiq/workflows/conditional-oracle-provisioning/lab-2026-11-20/README.md): created one synthetic account and added a SELECT-only probe-table role to a separate pre-existing account through installed LCM workflows. Requests `0000000014` and `0000000013` reached `Completed/Success`; Oracle and each exactly owned Link show the intended role. Sequential duplicate guards refused repeated writes.
+
+The evidence preserves a first Create no-op and no-email workflow warnings. The new account lacks `CREATE SESSION`, so usable sign-in is not verified. Synthetic identities/manual account binding do not establish automatic correlation; the existing custom form remains In Progress. [Actual captures and limits](docs/evidence/oracle-create-modify-2026-11-20.md).
 
 ## Reported hands-on projects
 

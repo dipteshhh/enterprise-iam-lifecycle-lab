@@ -1,16 +1,17 @@
 # Evidence ledger
 
-Reviewed on 2026-11-20 using the project owner's supplied lab narrative and the existing Git repository.
+Reviewed on 2026-11-20 using the project owner's narrative, repository and subsequently authorized scoped Oracle runtime exercise.
 
 | Evidence ID | Artifact inspected | What it establishes | What it does not establish |
 |---|---|---|---|
 | E-001 | Original commit `45ca03a`, one `README.md` | Repository existed with an IIQ/Entra lifecycle description | Connector configuration, code execution or target changes |
 | E-002 | Owner's master project prompt, supplied in this chat | Reported environment, previous experiments, challenges and current intent | Independently verified configuration or successful runtime tests |
 | E-003 | Newly authored repository examples | Reviewable illustrative code, documentation and fixtures | Original IIQ exports or execution inside the owner's environment |
+| E-004 | [Oracle Create/Modify runtime record](oracle-create-modify-2026-11-20.md) and sanitized captures | Actual scoped requests 13/14, target grants, exact Link reconciliation, verification and sequential duplicate guards | Original custom-form completion, automatic correlation, login usability, broad compatibility or historical Ann/Bill evidence |
 
 The original README contained the title `enterprise-iam-lifecycle-lab` and described a hands-on lifecycle project using SailPoint IdentityIQ and Microsoft Entra ID. It contained no configuration, code or test evidence. The initial working tree was clean; `main` tracked `origin/main` at the original HTTPS remote.
 
-No original SailPoint installation, task results, application exports, database readbacks or tenant screenshots were inspected. The repository work does not promote those historical capabilities to Verified.
+During the initial foundation no runtime artifacts were inspected. E-004 later inspected the local IIQ installation, private application/workflow exports and actual synthetic request/database results. Only its bounded new capabilities are promoted; historical configurations and other platforms remain evidence pending.
 
 ## Add a runtime record
 

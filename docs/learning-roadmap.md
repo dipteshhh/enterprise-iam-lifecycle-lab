@@ -15,7 +15,7 @@ The goal is evidence of a small working capability before expanding its scope. [
 
 ## Next recommended lab
 
-Complete **conditional Oracle provisioning for one synthetic identity with an existing account and one without**, using a narrow role instead of `DBA`. First record the local versions and verify HR correlation. Keep Create/Modify decision logic separate from execution, preserve configured approvals, and verify target state before declaring either branch complete. Do not assume Create then Modify in one plan is ordered by every connector. See [workflow WIP](../sailpoint-identityiq/workflows/README.md).
+Connect the [verified scoped Oracle account decisions](evidence/oracle-create-modify-2026-11-20.md) to the **existing custom selection form**, preserving server-side authorization, policy review and LCM approvals. Test missing-data, ambiguous-account and denial branches. Automatic correlation and login readiness remain separate exercises; the tested Create account lacks `CREATE SESSION`. Do not assume same-plan Create-then-Modify ordering. See [workflow WIP](../sailpoint-identityiq/workflows/README.md).
 
 ## Planned information architecture
 

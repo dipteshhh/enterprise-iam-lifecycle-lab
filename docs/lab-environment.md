@@ -1,6 +1,6 @@
 # Reported lab environment
 
-**Status: Previously Completed, Evidence Pending.** Source: owner's lab history (E-002). This document records that environment; it is not a portable installation guide or compatibility certification.
+**Status: Historical environment evidence pending, with scoped runtime observations in E-004.** The table preserves the original reported baseline; the later observations below resolve selected facts, not vendor compatibility or every component.
 
 | Component | Reported environment | Missing verification |
 |---|---|---|
@@ -33,8 +33,12 @@ Historical paths, specific to this Homebrew setup:
 
 The owner experimented with file appenders, root/named loggers, `loggerDex`, BeanShell/workflow logging and missing output. Check which configuration the service actually loaded, logger level and appender references, file permissions and service user before changing configuration. Restrict debug logging to a short isolated test and restore normal levels afterward. Full identity objects and plans may contain secrets or personal information.
 
+## Later runtime observations
+
+The [Oracle exercise](evidence/oracle-create-modify-2026-11-20.md) inspected installed IIQ **8.3 build f4b330b4da3-20220427-175259**, confirmed the running service JVM **17.0.21**, received HTTP 200 from the local endpoint and successfully tested the saved Oracle connector. The existing Docker target reported **Oracle AI Database 26ai Free Release 23.26.3.0.0**, with `FREEPDB1` read-write. The exact vendor-supported combination remains unconfirmed. HTTP 200 alone does not verify a UI login.
+
 ## Operational boundary
 
-This repository task has not edited the installation, restarted Tomcat, run Docker, contacted localhost or changed a connected identity system. All runtime procedures are instructions for a separately authorized lab session. Vendor binaries, licensed JARs/WARs and confidential documentation are excluded from this repository.
+The initial foundation did not operate identity systems. The user subsequently authorized the bounded Oracle test, including the concrete account and narrow-role changes. That session started Docker Desktop, inspected the local installation, used the IIQ console and operated only the documented synthetic fixture/request scope. No Tomcat restart or installation-file edit was performed. See E-004 for retained objects, actual effects and cleanup. Vendor binaries, licensed JARs/WARs and confidential documentation remain excluded.
 
 Use the [setup checklist](../sailpoint-identityiq/setup/README.md) and [evidence ledger](evidence/README.md) before attempting reproducibility.

@@ -101,7 +101,7 @@ No code here calls `Provisioner.execute`, launches a workflow, or skips standard
 | Duplicate submission / timeout after success | Reconcile before retry; no second account | Request deduplication policy and target account count |
 | Account changed after selection | Revalidate before execution; handle race explicitly | Fresh query time and resulting decision |
 
-Actual results: no entries in this matrix have been executed for this repository version. Do not replace expected outcomes with invented terminal output or screenshots.
+Actual results for the **new separate scoped harness** are now available in the [Create/Modify lab](lab-2026-11-20/README.md): both positive account paths, target/Link reconciliation and sequential duplicate guards were executed. This does not verify this original custom form's execution, automatic correlation, concurrency or the remaining matrix cases. The initial no-op and warnings are preserved in its evidence record.
 
 ## Troubleshooting history and approach
 

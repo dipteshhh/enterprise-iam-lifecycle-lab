@@ -1,6 +1,6 @@
 # Implementation status
 
-Last reviewed: **2026-11-20**. Scope: repository artifacts and the owner's supplied narrative; no running identity systems were inspected. [Evidence ledger](evidence/README.md).
+Last reviewed: **2026-11-20**. Scope: repository artifacts, the owner's narrative and the bounded Oracle runtime exercise in E-004. Historical claims remain distinct from newly observed results. [Evidence ledger](evidence/README.md).
 
 | Status | Meaning |
 |---|---|
@@ -23,6 +23,9 @@ Last reviewed: **2026-11-20**. Scope: repository artifacts and the owner's suppl
 | Manager correlation: Bob Fields → Ann Parson | Previously Completed, Evidence Pending | E-002; inspect resolved manager reference and missing-manager case |
 | Duplicate Mitch Armstrong / Employee ID 401 experiment | Previously Completed, Evidence Pending | E-002; reproduce safely; no complete remediation framework |
 | Oracle account/entitlement aggregation and provisioning | Previously Completed, Evidence Pending | E-002; inspect actual connector and Oracle target readback |
+| New scoped Oracle connector connectivity | Verified | E-004; saved Oracle Application test succeeded against local FREEPDB1 |
+| New Oracle Create account plus narrow role / existing-account Modify | Verified | E-004; requests 14/13 Completed/Success; independent target and exact owned Links agree; no login or complete custom-form claim |
+| Sequential duplicate guards for that scoped harness | Verified | E-004; existing-account Create and repeated-role Modify refused before another request; concurrency not tested |
 | Ann Parson approval for Bill Murray access | Previously Completed, Evidence Pending | E-002; inspect approval, request and target evidence separately |
 | Oracle Business/IT Role modeling | Previously Completed, Evidence Pending | E-002; inspect required-role relationship and entitlement profile |
 | Job-title automatic role assignment | In Progress | Investigated only; capture assignment, provisioning and removal behavior |
@@ -31,7 +34,7 @@ Last reviewed: **2026-11-20**. Scope: repository artifacts and the owner's suppl
 | Entra employeeId correlation | In Progress | Studied; prove unique match and ambiguity handling |
 | BeanShell identity count/name/email queries | Previously Completed, Evidence Pending | E-002; reconstructed snippets require IIQ execution evidence |
 | QueryOptions, logging and workflow form experiments | Previously Completed, Evidence Pending | E-002; inspect original rule signatures and workflow variables |
-| Conditional Oracle Create/Modify workflow | In Progress | No working end-to-end artifact inspected; test both branches and replay |
+| Original conditional Oracle selection-form workflow | In Progress | Existing workflow inspected; new scoped LCM harness tested both account branches, but original form/branch integration, authorization and broader failures remain unfinished |
 | Joiner lifecycle automation | In Progress | Design/early study; no complete workflow verified |
 | Pre-hire disable/activation, username uniqueness and M365 licensing | Planned | Connectivity alone does not establish provisioning |
 | Mover, leaver and additional lifecycle automation | Planned | Defined acceptance scenarios; not executed |
@@ -47,6 +50,6 @@ Last reviewed: **2026-11-20**. Scope: repository artifacts and the owner's suppl
 
 ## Repository verification is separate
 
-The [quality record](quality-assurance.md) records checks performed on the new documentation, fixtures and standalone examples. Passing these checks cannot verify the IIQ, Oracle, MySQL, Entra or AD integrations above. E-001 confirms repository history, not practical implementation.
+The [quality record](quality-assurance.md) records repository checks. Those checks alone cannot verify integrations. E-004 separately supplies actual scoped IIQ/Oracle runtime evidence; it does not verify the other historical/platform rows. E-001 confirms repository history, not practical implementation.
 
 To advance a row, attach a runtime evidence record with versions, inputs, actual results, target readback, failure/replay tests and reviewer observations. Narrow the row if only one branch or operation has been tested. If an environment becomes confirmed unavailable, record the actual blocker rather than assuming all planned topics are Blocked.

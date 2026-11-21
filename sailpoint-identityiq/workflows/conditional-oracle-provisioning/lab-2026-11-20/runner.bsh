@@ -1,0 +1,407 @@
+// Northstar Oracle lab harness. Original repository exercise source, not vendor code.
+// Checked API signatures against installed IIQ 8.3; root must review before execution.
+// Requires injected context and String mode. No target DDL, direct Provisioner.execute,
+// broad account aggregation, approval completion, password logging or plan serialization.
+// Exact opt-in modes: preflight, seed-identities, inspect, reconcile,
+// request-create, request-modify. Any other mode stops.
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.security.SecureRandom;
+import sailpoint.api.Aggregator;
+import sailpoint.api.Identitizer;
+import sailpoint.api.SailPointContext;
+import sailpoint.api.Workflower;
+import sailpoint.connector.Connector;
+import sailpoint.connector.ConnectorFactory;
+import sailpoint.connector.ObjectNotFoundException;
+import sailpoint.object.Application;
+import sailpoint.object.AttributeDefinition;
+import sailpoint.object.Attributes;
+import sailpoint.object.Filter;
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+import sailpoint.object.ManagedAttribute;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+import sailpoint.object.QueryOptions;
+import sailpoint.object.ResourceObject;
+import sailpoint.object.Schema;
+import sailpoint.object.TaskResult;
+import sailpoint.object.Workflow;
+import sailpoint.object.WorkflowCase;
+import sailpoint.object.WorkflowLaunch;
+
+List exactLinks(SailPointContext ctx, Application app, String nativeName) {
+    QueryOptions qo = new QueryOptions();
+    qo.addFilter(Filter.eq("application.id", app.getId()));
+    qo.addFilter(Filter.eq("nativeIdentity", nativeName));
+    return ctx.getObjects(Link.class, qo);
+}
+
+boolean hasExactRole(Object roles, String approvedRole) {
+    if (roles == null) return false;
+    if (roles instanceof String) return approvedRole.equals((String) roles);
+    if (!(roles instanceof Collection)) {
+        throw new IllegalStateException("Unexpected ROLES value type; inspect schema privately");
+    }
+    for (Object candidate : (Collection) roles) {
+        if (approvedRole.equals(candidate)) return true;
+    }
+    return false;
+}
+
+Identity exactSubject(SailPointContext ctx, String name, String employeeKey) {
+    Identity subject = ctx.getObjectByName(Identity.class, name);
+    if (subject == null || subject.isInactive()) {
+        throw new IllegalStateException("Synthetic subject missing or inactive: " + name);
+    }
+    if (!employeeKey.equals(subject.getAttribute("employeeID"))) {
+        throw new IllegalStateException("Synthetic ownership marker mismatch: " + name);
+    }
+    if (subject.getEmail() != null && subject.getEmail().trim().length() != 0) {
+        throw new IllegalStateException("Synthetic subject must have no email address");
+    }
+    if (subject.getManager() == null || !"NS_LAB_APPROVER".equals(subject.getManager().getName()) ||
+        !"oracle-create-modify-01".equals(subject.getManager().getAttribute("northstarLabMarker")) ||
+        (subject.getManager().getEmail() != null && subject.getManager().getEmail().trim().length() != 0)) {
+        throw new IllegalStateException("Synthetic manager must be exact no-email lab approver");
+    }
+    return subject;
+}
+
+ResourceObject lookupAccount(Connector connector, String name) {
+    try {
+        return connector.getObject("account", name, null);
+    } catch (ObjectNotFoundException absent) {
+        // Verified IIQ 8.3 Oracle behavior: explicit not-found denotes absence.
+        // Connectivity, permission and other connector errors still propagate.
+        return null;
+    }
+}
+
+Map accountSnapshot(SailPointContext ctx, Application app, Connector connector,
+                    String name, String approvedRole) {
+    // Only the explicit ObjectNotFoundException contract denotes absence.
+    ResourceObject target = lookupAccount(connector, name);
+    if (target != null && !name.equals(target.getIdentity())) {
+        throw new IllegalStateException("Target lookup returned unexpected native identity");
+    }
+    List links = exactLinks(ctx, app, name);
+    if (links.size() > 1) {
+        throw new IllegalStateException("Multiple exact scoped Links; manual review required");
+    }
+    Map safe = new HashMap();
+    safe.put("nativeIdentity", name);
+    safe.put("targetPresent", Boolean.valueOf(target != null));
+    safe.put("linkCount", Integer.valueOf(links.size()));
+    safe.put("testRoleOnTarget", Boolean.valueOf(target != null &&
+                 hasExactRole(target.getAttribute("ROLES"), approvedRole)));
+    if (target != null) safe.put("accountStatus", target.getAttribute("ACCOUNT_STATUS"));
+    if (!links.isEmpty()) {
+        Link link = (Link) links.get(0);
+        safe.put("linkOwnerMatchesExpectedSubject", Boolean.valueOf(
+             link.getIdentity() != null && name.equals(link.getIdentity().getName())));
+        safe.put("testRoleOnLink", Boolean.valueOf(
+             hasExactRole(link.getAttribute("ROLES"), approvedRole)));
+    }
+    return safe;
+}
+
+String randomPassword() {
+    // One mandatory character from each simple class plus a high-entropy suffix.
+    // The generated value is never returned, logged or written to a local file.
+    SecureRandom random = new SecureRandom();
+    String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+    StringBuilder password = new StringBuilder("Aa7!");
+    for (int i = 0; i < 28; i++) password.append(alphabet.charAt(random.nextInt(alphabet.length())));
+    return password.toString();
+}
+
+if (mode == null || !(mode instanceof String)) {
+    throw new IllegalArgumentException("An explicit String mode is required");
+}
+String selectedMode = ((String) mode).trim();
+String applicationName = "Oracle Application";
+String approvedRole = "NS_LAB_REPORT_READER";
+String[] subjectNames = new String[] { "NS_LAB_CREATE_01", "NS_LAB_MODIFY_01" };
+String[] employeeKeys = new String[] { "NSLAB-CREATE-01", "NSLAB-MODIFY-01" };
+Application app = context.getObjectByName(Application.class, applicationName);
+if (app == null || !"Oracle Database - Direct".equals(app.getType())) {
+    throw new IllegalStateException("Inspected Oracle Application/type no longer matches");
+}
+Schema schema = app.getAccountSchema();
+if (schema == null || !"USERNAME".equals(schema.getIdentityAttribute()) ||
+    !schema.isMultiValued("ROLES")) {
+    throw new IllegalStateException("Inspected USERNAME/ROLES schema no longer matches");
+}
+AttributeDefinition roleDefinition = schema.getAttributeDefinition("ROLES");
+if (roleDefinition == null || !roleDefinition.isEntitlement() ||
+    !"group".equals(roleDefinition.getSchemaObjectType())) {
+    throw new IllegalStateException("Inspected ROLES entitlement contract no longer matches");
+}
+Identity operator = context.getObjectByName(Identity.class, "spadmin");
+if (operator == null || operator.isInactive() ||
+    (operator.getEmail() != null && operator.getEmail().trim().length() != 0)) {
+    throw new IllegalStateException("Inspected active no-email lab operator no longer matches");
+}
+Map result = new HashMap();
+result.put("mode", selectedMode);
+result.put("scope", "two fixed synthetic Oracle subjects and one narrow role");
+
+if ("preflight".equals(selectedMode)) {
+    result.put("applicationTypeMatches", Boolean.TRUE);
+    result.put("identityAttribute", schema.getIdentityAttribute());
+    result.put("schemaAttributeCount", Integer.valueOf(schema.getAttributes().size()));
+    result.put("roleEntitlementContractMatches", Boolean.TRUE);
+    result.put("operatorEmailAbsent", Boolean.TRUE);
+    List subjects = new ArrayList();
+    for (String name : subjectNames) {
+        Map item = new HashMap();
+        item.put("name", name);
+        item.put("identityPresent", Boolean.valueOf(context.getObjectByName(Identity.class, name) != null));
+        item.put("exactLinkCount", Integer.valueOf(exactLinks(context, app, name).size()));
+        subjects.add(item);
+    }
+    result.put("subjects", subjects);
+    return result;
+}
+
+if ("seed-identities".equals(selectedMode)) {
+    // Validate all exact names before saving any synthetic identity.
+    if (context.getObjectByName(Identity.class, "NS_LAB_APPROVER") != null) {
+        throw new IllegalStateException("Synthetic approver collision; seed stopped");
+    }
+    for (int i = 0; i < subjectNames.length; i++) {
+        if (context.getObjectByName(Identity.class, subjectNames[i]) != null ||
+            !exactLinks(context, app, subjectNames[i]).isEmpty()) {
+            throw new IllegalStateException("Synthetic name/Link collision; seed stopped");
+        }
+        // Small-lab read only: do not assume employeeID is a searchable ORM property.
+        if (context.countObjects(Identity.class, new QueryOptions()) > 5000) {
+            throw new IllegalStateException("Lab inventory bound exceeded; inspect separately");
+        }
+        for (Object existing : context.getObjects(Identity.class, new QueryOptions())) {
+            if (employeeKeys[i].equals(((Identity) existing).getAttribute("employeeID"))) {
+                throw new IllegalStateException("Synthetic employee key collision");
+            }
+        }
+    }
+    try {
+        Identity approver = new Identity();
+        approver.setName("NS_LAB_APPROVER");
+        approver.setFirstname("Northstar");
+        approver.setLastname("LabApprover");
+        approver.setDisplayName("Northstar Lab Approver");
+        approver.setAttribute("northstarLabMarker", "oracle-create-modify-01");
+        approver.setInactive(false);
+        approver.setEmail(null);
+        context.saveObject(approver);
+        for (int i = 0; i < subjectNames.length; i++) {
+            Identity subject = new Identity();
+            subject.setName(subjectNames[i]);
+            subject.setFirstname("Northstar");
+            subject.setLastname(i == 0 ? "CreateTest" : "ModifyTest");
+            subject.setDisplayName(i == 0 ? "Northstar Create Test 01" : "Northstar Modify Test 01");
+            subject.setAttribute("employeeID", employeeKeys[i]);
+            subject.setAttribute("northstarLabMarker", "oracle-create-modify-01");
+            subject.setManager(approver);
+            subject.setInactive(false);
+            subject.setEmail(null);
+            context.saveObject(subject);
+        }
+        context.commitTransaction();
+    } catch (Exception failure) {
+        context.rollbackTransaction();
+        throw failure;
+    }
+    result.put("identitiesCreated", Integer.valueOf(3));
+    result.put("targetChangesSubmitted", Boolean.FALSE);
+    return result;
+}
+
+if (!("inspect".equals(selectedMode) || "reconcile".equals(selectedMode) ||
+      "request-create".equals(selectedMode) || "request-modify".equals(selectedMode))) {
+    throw new IllegalArgumentException("Unsupported mode; no action performed");
+}
+Connector connector = ConnectorFactory.getConnector(app, null);
+if ("inspect".equals(selectedMode)) {
+    List summaries = new ArrayList();
+    for (String name : subjectNames) summaries.add(accountSnapshot(context, app, connector, name, approvedRole));
+    result.put("accounts", summaries);
+    return result;
+}
+
+if ("reconcile".equals(selectedMode)) {
+    // Explicit manual synthetic binding because installed application has no
+    // account correlation configuration. This does NOT verify automatic correlation.
+    // Check both subjects up front before any Link write.
+    for (int i = 0; i < subjectNames.length; i++) exactSubject(context, subjectNames[i], employeeKeys[i]);
+    List summaries = new ArrayList();
+    for (int i = 0; i < subjectNames.length; i++) {
+        String name = subjectNames[i];
+        Identity subject = exactSubject(context, name, employeeKeys[i]);
+        ResourceObject target = lookupAccount(connector, name);
+        List links = exactLinks(context, app, name);
+        if (links.size() > 1) throw new IllegalStateException("Multiple scoped Links; reconciliation stopped");
+        if (target == null) {
+            if (!links.isEmpty()) throw new IllegalStateException("Stale Link with absent target; review required");
+            summaries.add(accountSnapshot(context, app, connector, name, approvedRole));
+            continue;
+        }
+        if (!name.equals(target.getIdentity())) throw new IllegalStateException("Unexpected target identity");
+        if (!links.isEmpty()) {
+            Link found = (Link) links.get(0);
+            if (found.getIdentity() == null || !subject.getId().equals(found.getIdentity().getId())) {
+                throw new IllegalStateException("Existing Link belongs to another subject");
+            }
+        } else {
+            Link manualBinding = new Link();
+            manualBinding.setApplication(app);
+            manualBinding.setNativeIdentity(name);
+            manualBinding.setDisplayName(name);
+            manualBinding.setAttribute("USERNAME", name);
+            manualBinding.setIdentity(subject);
+            subject.add(manualBinding);
+            context.saveObject(subject);
+            context.saveObject(manualBinding);
+            context.commitTransaction();
+        }
+        Attributes aggregationOptions = new Attributes();
+        aggregationOptions.put(Aggregator.ARG_CORRELATE_ONLY, Boolean.TRUE);
+        aggregationOptions.put(Aggregator.ARG_NO_OPTIMIZE_REAGGREGATION, Boolean.TRUE);
+        aggregationOptions.put(Aggregator.ARG_NO_ATTRIBUTE_PROMOTION, Boolean.TRUE);
+        aggregationOptions.put(Aggregator.ARG_NO_NEEDS_REFRESH, Boolean.TRUE);
+        aggregationOptions.put(Aggregator.ARG_CHECK_DELETED, Boolean.FALSE);
+        aggregationOptions.put(Aggregator.ARG_TRACE, Boolean.FALSE);
+        aggregationOptions.put(Aggregator.ARG_CLEAR_TEXT_REQUEST_STATE, Boolean.FALSE);
+        aggregationOptions.put(Aggregator.ARG_REFRESH_MANAGED_ATTRIBUTES, Boolean.FALSE);
+        aggregationOptions.put(Aggregator.ARG_MAX_RETRY_ACCOUNTS, Integer.valueOf(0));
+        aggregationOptions.put(Identitizer.ARG_PROCESS_TRIGGERS, Boolean.FALSE);
+        aggregationOptions.put(Identitizer.ARG_PROVISION, Boolean.FALSE);
+        aggregationOptions.put(Identitizer.ARG_SYNCHRONIZE_ATTRIBUTES, Boolean.FALSE);
+        aggregationOptions.put(Identitizer.ARG_CHECK_POLICIES, Boolean.FALSE);
+        aggregationOptions.put(Identitizer.ARG_NO_MANAGER_CORRELATION, Boolean.TRUE);
+        Aggregator aggregator = new Aggregator(context, aggregationOptions);
+        aggregator.setCorrelateOnly(true);
+        TaskResult task = aggregator.aggregate(app, target);
+        if (task == null || aggregator.hadProblems()) {
+            throw new IllegalStateException("Scoped aggregation needs private task-result review");
+        }
+        context.commitTransaction();
+        context.decache();
+        summaries.add(accountSnapshot(context, app, connector, name, approvedRole));
+    }
+    result.put("manualSyntheticBinding", Boolean.TRUE);
+    result.put("accounts", summaries);
+    return result;
+}
+
+// Governed request launch, one exact account/role; never completes approvals.
+boolean isCreate = "request-create".equals(selectedMode);
+int subjectIndex = isCreate ? 0 : 1;
+String selectedName = subjectNames[subjectIndex];
+Identity subject = exactSubject(context, selectedName, employeeKeys[subjectIndex]);
+ResourceObject currentTarget = lookupAccount(connector, selectedName);
+List selectedLinks = exactLinks(context, app, selectedName);
+if (selectedLinks.size() > 1) throw new IllegalStateException("Ambiguous account Links");
+if (isCreate) {
+    if (currentTarget != null || !selectedLinks.isEmpty()) {
+        throw new IllegalStateException("Create precondition requires no target and no Link");
+    }
+} else {
+    if (currentTarget == null || !selectedName.equals(currentTarget.getIdentity()) || selectedLinks.size() != 1) {
+        throw new IllegalStateException("Modify requires one fresh target and one matching Link");
+    }
+    Link selectedLink = (Link) selectedLinks.get(0);
+    if (selectedLink.getIdentity() == null || !subject.getId().equals(selectedLink.getIdentity().getId()) ||
+        !selectedName.equals(selectedLink.getNativeIdentity())) {
+        throw new IllegalStateException("Modify Link ownership/native identity mismatch");
+    }
+    if (hasExactRole(currentTarget.getAttribute("ROLES"), approvedRole)) {
+        throw new IllegalStateException("Role already present; do not resubmit a duplicate grant");
+    }
+}
+QueryOptions roleQuery = new QueryOptions();
+roleQuery.addFilter(Filter.eq("application.id", app.getId()));
+roleQuery.addFilter(Filter.eq("attribute", "ROLES"));
+roleQuery.addFilter(Filter.eq("value", approvedRole));
+if (context.countObjects(ManagedAttribute.class, roleQuery) != 1) {
+    throw new IllegalStateException("Narrow role must be uniquely present in inspected catalog");
+}
+String caseName = isCreate ? "NSLAB-Oracle-Create-02" : "NSLAB-Oracle-Modify-01";
+if (context.getObjectByName(WorkflowCase.class, caseName) != null ||
+    context.getObjectByName(TaskResult.class, caseName) != null) {
+    throw new IllegalStateException("Workflow case already exists; inspect instead of resubmitting");
+}
+Workflow workflow = context.getObjectByName(Workflow.class, "LCM Provisioning");
+if (workflow == null) throw new IllegalStateException("Installed governed workflow missing");
+String[] requiredInputs = new String[] { "identityName", "plan", "approvalScheme", "approvalMode",
+    "notificationScheme", "approvalEmailTemplate", "foregroundProvisioning", "optimisticProvisioning",
+    "doRefresh", "trace", "enableRetryRequest" };
+for (String inputName : requiredInputs) {
+    if (workflow.getVariableDefinition(inputName) == null) {
+        throw new IllegalStateException("Inspected LCM workflow input missing: " + inputName);
+    }
+}
+ProvisioningPlan plan = new ProvisioningPlan();
+plan.setIdentity(subject);
+plan.setNativeIdentity(subject.getName());
+AccountRequest request = new AccountRequest();
+request.setApplication(applicationName);
+request.setNativeIdentity(selectedName);
+request.setOperation(isCreate ? AccountRequest.Operation.Create : AccountRequest.Operation.Modify);
+if (isCreate) {
+    request.add(new AttributeRequest("USERNAME", ProvisioningPlan.Operation.Set, selectedName));
+    String generatedPassword = randomPassword();
+    String encryptedPassword = context.encrypt(generatedPassword);
+    generatedPassword = null;
+    AttributeRequest passwordRequest = new AttributeRequest("password", ProvisioningPlan.Operation.Set, encryptedPassword);
+    encryptedPassword = null;
+    if (!passwordRequest.isSecret()) throw new IllegalStateException("Password attribute not recognized as secret");
+    request.add(passwordRequest);
+}
+request.add(new AttributeRequest("ROLES", ProvisioningPlan.Operation.Add, approvedRole));
+plan.add(request);
+Map variables = new HashMap();
+variables.put("identityName", subject.getName());
+variables.put("plan", plan);
+variables.put("launcher", "spadmin");
+variables.put("requester", "spadmin");
+variables.put("source", "LCM");
+variables.put("flow", "AccessRequest");
+variables.put("approvalScheme", "manager");
+variables.put("approvalMode", "serial");
+variables.put("notificationScheme", "none");
+variables.put("approvalEmailTemplate", "");
+variables.put("foregroundProvisioning", Boolean.TRUE);
+variables.put("optimisticProvisioning", Boolean.FALSE);
+variables.put("doRefresh", Boolean.FALSE);
+variables.put("trace", Boolean.FALSE);
+variables.put("enableRetryRequest", Boolean.FALSE);
+WorkflowLaunch launch = new WorkflowLaunch();
+launch.setWorkflowName(workflow.getName());
+launch.setWorkflow(workflow);
+launch.setTarget(subject);
+launch.setCaseName(caseName);
+launch.setLauncher("spadmin");
+launch.setSessionOwner("spadmin");
+launch.setVariables(variables);
+Workflower workflower = new Workflower(context);
+workflower.setSessionOwner("spadmin");
+WorkflowLaunch launched = workflower.launch(launch);
+context.commitTransaction();
+result.put("workflowCaseName", caseName);
+result.put("workflowStatus", launched.getStatus());
+result.put("workflowFailed", Boolean.valueOf(launched.isFailed()));
+result.put("workflowCasePresent", Boolean.valueOf(launched.getWorkflowCase()!=null));
+result.put("launchMessageCount", Integer.valueOf(launched.getMessages()==null?0:launched.getMessages().size()));
+result.put("approvalsCompletedByHarness", Boolean.FALSE);
+result.put("operation", isCreate ? "Create" : "Modify");
+result.put("nativeIdentity", selectedName);
+result.put("role", approvedRole);
+result.put("targetReadbackRequired", Boolean.TRUE);
+return result;

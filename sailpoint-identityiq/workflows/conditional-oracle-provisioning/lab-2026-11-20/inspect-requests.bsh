@@ -1,0 +1,19 @@
+// Newly authored source used for this scoped IIQ 8.3 lab. Review before use.
+import sailpoint.object.*;
+import java.util.*;
+Map out=new LinkedHashMap();
+for(String n:new String[]{"NSLAB-Oracle-Create-01","NSLAB-Oracle-Create-02","NSLAB-Oracle-Modify-01"}){
+ WorkflowCase c=context.getObjectByName(WorkflowCase.class,n);
+ if(c==null){out.put(n,"no active case; inspect TaskResult");continue;}
+ Map one=new LinkedHashMap(); one.put("caseId",c.getId()); one.put("complete",c.isComplete());
+ Object req=c.getAttribute("identityRequestId"); one.put("identityRequestId",req);
+ if(req!=null){IdentityRequest ir=context.getObjectById(IdentityRequest.class,req.toString());if(ir!=null){one.put("requestName",ir.getName());one.put("executionStatus",ir.getExecutionStatus());one.put("completionStatus",ir.getCompletionStatus());}}
+ QueryOptions qo=new QueryOptions();qo.addFilter(Filter.eq("workflowCase.id",c.getId()));
+ List summaries=new ArrayList();
+ for(Object o:context.getObjects(WorkItem.class,qo)){WorkItem wi=(WorkItem)o; Map w=new LinkedHashMap();w.put("id",wi.getId());w.put("type",wi.getType());w.put("state",wi.getState());w.put("owner",wi.getOwner()==null?null:wi.getOwner().getName());w.put("target",wi.getTargetName()); w.put("attributeKeys",wi.getAttributes()==null?null:wi.getAttributes().keySet());
+Form form=wi.getForm();
+if(form!=null){List fs=new ArrayList();for(Object fieldObject:form.getFields()){Field f=(Field)fieldObject; Map fm=new LinkedHashMap();fm.put("name",f.getName());fm.put("type",f.getType());fm.put("required",f.isRequired());fm.put("valuePresent",f.getValue()!=null);fs.add(fm);} w.put("formFields",fs);}
+summaries.add(w);}
+ one.put("workItems",summaries);out.put(n,one);
+}
+return out;

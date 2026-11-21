@@ -1,0 +1,19 @@
+// Newly authored source used for this scoped IIQ 8.3 lab. Review before use.
+import sailpoint.object.*;
+import sailpoint.api.*;
+import sailpoint.connector.*;
+import java.util.*;
+Application app=context.getObjectByName(Application.class,"Oracle Application");
+Identity owner=context.getObjectByName(Identity.class,"NS_LAB_APPROVER");
+if(owner==null || !"oracle-create-modify-01".equals(owner.getAttribute("northstarLabMarker"))) throw new IllegalStateException("Synthetic owner missing");
+QueryOptions qo=new QueryOptions(); qo.addFilter(Filter.eq("application.id",app.getId())); qo.addFilter(Filter.eq("attribute","ROLES")); qo.addFilter(Filter.eq("value","NS_LAB_REPORT_READER"));
+if(context.countObjects(ManagedAttribute.class,qo)!=0) throw new IllegalStateException("Catalog collision; review before modifying");
+Connector connector=ConnectorFactory.getConnector(app,null);
+ResourceObject role=connector.getObject("group","NS_LAB_REPORT_READER",null);
+if(role==null || !"NS_LAB_REPORT_READER".equals(role.getIdentity())) throw new IllegalStateException("Exact target role missing");
+Attributes options=new Attributes(); options.put("trace",false); options.put("processTriggers",false); options.put("provision",false);
+ManagedAttribute item=new Aggregator(context,options).aggregateGroup(app,role);
+if(item==null || !"NS_LAB_REPORT_READER".equals(item.getValue())) throw new IllegalStateException("Unexpected catalog result");
+item.setOwner(owner); item.setRequestable(true); item.setDisplayName("Northstar synthetic probe reader"); item.setDescription("Isolated lab role: SELECT on NS_LAB_DATA_OWNER.NS_LAB_PROBE only. Not production access.");
+context.saveObject(item); context.commitTransaction();
+Map out=new LinkedHashMap(); out.put("role",item.getValue()); out.put("attribute",item.getAttribute()); out.put("requestable",item.isRequestable()); out.put("syntheticOwner",owner.getName()); out.put("targetChanges",false); return out;

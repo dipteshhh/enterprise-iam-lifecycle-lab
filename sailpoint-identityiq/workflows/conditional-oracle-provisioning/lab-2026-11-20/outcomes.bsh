@@ -1,0 +1,13 @@
+// Newly authored source used for this scoped IIQ 8.3 lab. Review before use.
+import sailpoint.object.*;
+import java.util.*;
+Map out=new LinkedHashMap();
+for(String name:new String[]{"NS_LAB_CREATE_01","NS_LAB_MODIFY_01"}){
+ Identity subject=context.getObjectByName(Identity.class,name); QueryOptions qo=new QueryOptions(); qo.addFilter(Filter.eq("targetId",subject.getId()));
+ List reports=new ArrayList();
+ for(Object o:context.getObjects(IdentityRequest.class,qo)){ IdentityRequest ir=(IdentityRequest)o;Map row=new LinkedHashMap();row.put("requestName",ir.getName());row.put("executionStatus",ir.getExecutionStatus());row.put("completionStatus",ir.getCompletionStatus());List itemRows=new ArrayList();
+ for(Object io:ir.getItems()){IdentityRequestItem i=(IdentityRequestItem)io;Map x=new LinkedHashMap();x.put("application",i.getApplication());x.put("operation",i.getOperation());x.put("approvalState",i.getApprovalState());x.put("provisioningState",i.getProvisioningState());x.put("errorCount",i.getErrors()==null?0:i.getErrors().size());itemRows.add(x);}row.put("items",itemRows);reports.add(row);}
+ out.put(name,reports);
+}
+for(String name:new String[]{"NSLAB-Oracle-Create-01","NSLAB-Oracle-Create-02","NSLAB-Oracle-Modify-01"}){TaskResult tr=context.getObjectByName(TaskResult.class,name); if(tr!=null){Map row=new LinkedHashMap();row.put("status",tr.getCompletionStatus());row.put("messageCount",tr.getMessages()==null?0:tr.getMessages().size()); List messageKeys=new ArrayList(); if(tr.getMessages()!=null){ for(Object mo:tr.getMessages()){sailpoint.tools.Message m=(sailpoint.tools.Message)mo;messageKeys.add(m.getType()+":"+m.getKey());}}row.put("messageKeys",messageKeys);out.put(name,row);}}
+return out;

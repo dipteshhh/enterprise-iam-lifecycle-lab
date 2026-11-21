@@ -1,0 +1,18 @@
+// Newly authored source used for this scoped IIQ 8.3 lab. Review before use.
+import sailpoint.object.*;
+import sailpoint.api.*;
+import java.util.*;
+List result=new ArrayList();
+String[] requestNames={"0000000013","0000000014"};
+String[] subjectNames={"NS_LAB_MODIFY_01","NS_LAB_CREATE_01"};
+for(int index=0;index<requestNames.length;index++){
+ Identity subject=context.getObjectByName(Identity.class,subjectNames[index]);
+ IdentityRequest request=context.getObjectByName(IdentityRequest.class,requestNames[index]);
+ if(subject==null || request==null || !subject.getId().equals(request.getTargetId()) || !"oracle-create-modify-01".equals(subject.getAttribute("northstarLabMarker"))) throw new IllegalStateException("Exact request/subject scope mismatch");
+ for(Object o:request.getItems()){IdentityRequestItem item=(IdentityRequestItem)o;if(!"Oracle Application".equals(item.getApplication()))throw new IllegalStateException("Unexpected request application");}
+ // Normal evidence-based scan; never call markVerifiedAndFinalize directly.
+ new IdentityRequestProvisioningScanner(context,new Attributes()).scan(request);
+ context.commitTransaction();
+ Map row=new LinkedHashMap();row.put("requestName",request.getName());row.put("executionStatus",request.getExecutionStatus());row.put("completionStatus",request.getCompletionStatus());result.add(row);
+}
+return result;
