@@ -1,0 +1,24 @@
+// Newly authored illustrative helper; NOT verified in IdentityIQ.
+// identityName must be the Identity name, not its database ID or display name.
+import java.util.Map;
+import java.util.HashMap;
+import sailpoint.object.Identity;
+
+if (identityName == null || identityName.trim().length() == 0) {
+    throw new IllegalArgumentException("Select an identity");
+}
+Identity selectedIdentity = context.getObjectByName(Identity.class, identityName);
+if (selectedIdentity == null) {
+    throw new IllegalArgumentException("Selected identity no longer exists");
+}
+if (selectedIdentity.isInactive()) {
+    throw new IllegalArgumentException("Inactive identity requires separate review");
+}
+
+Map validation = new HashMap();
+validation.put("identityName", selectedIdentity.getName());
+validation.put("emailPresent", Boolean.valueOf(
+    selectedIdentity.getEmail() != null && selectedIdentity.getEmail().trim().length() > 0
+));
+// This is data validation, not requester authorization or approval.
+return validation;

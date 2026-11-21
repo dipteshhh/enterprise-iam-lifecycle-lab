@@ -1,0 +1,12 @@
+// Reconstructed from the supplied lab narrative; not an original rule export.
+// Previously Completed, Evidence Pending. Small-lab, in-memory query only.
+import java.util.List;
+import java.util.ArrayList;
+import sailpoint.object.Identity;
+
+List identities = context.getObjects(Identity.class);
+List names = new ArrayList();
+for (Identity identity : identities) {
+    names.add(identity.getName());
+}
+return names;

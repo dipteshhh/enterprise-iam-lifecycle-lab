@@ -1,0 +1,12 @@
+// Reconstructed from the supplied lab narrative; not an original rule export.
+// Previously Completed, Evidence Pending. Null emails are intentionally retained.
+import java.util.List;
+import java.util.ArrayList;
+import sailpoint.object.Identity;
+
+List identities = context.getObjects(Identity.class);
+List emails = new ArrayList();
+for (Identity identity : identities) {
+    emails.add(identity.getEmail());
+}
+return emails;

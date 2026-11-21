@@ -1,0 +1,7 @@
+// Reconstructed from the supplied lab narrative; not an original rule export.
+// Previously Completed, Evidence Pending. Requires an IIQ context variable.
+import java.util.List;
+import sailpoint.object.Identity;
+
+List identities = context.getObjects(Identity.class);
+return identities.size();

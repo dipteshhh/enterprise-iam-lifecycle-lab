@@ -1,0 +1,9 @@
+// Newly authored adaptation of the lab's loggerDex narrative; NOT IIQ-tested.
+// Requires Log4j2 on the installed IIQ runtime classpath; no workflow input needed.
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+Logger diagnosticLogger = LogManager.getLogger("loggerDex");
+diagnosticLogger.debug("Northstar illustrative workflow step reached");
+// A returned marker proves script execution only, not log routing or provisioning.
+return "DIAGNOSTIC_MARKER_REACHED";

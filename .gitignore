@@ -1,0 +1,25 @@
+# Local secrets, licensed software, and generated artifacts
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.war
+*.jar
+*.class
+*.log
+*.hprof
+*.dmp
+*.zip
+*.tar
+*.gz
+.DS_Store
+__pycache__/
+node_modules/
+.venv/
+build/
+target/
+local-evidence/

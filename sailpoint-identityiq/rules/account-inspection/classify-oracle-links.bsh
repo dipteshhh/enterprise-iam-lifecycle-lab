@@ -1,0 +1,52 @@
+// Newly authored illustrative read-only helper; NOT verified in IdentityIQ.
+// Input: context, String identityName, String applicationName (exact IIQ names).
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import sailpoint.object.Identity;
+import sailpoint.object.Application;
+import sailpoint.object.Link;
+
+if (identityName == null || identityName.trim().length() == 0 ||
+    applicationName == null || applicationName.trim().length() == 0) {
+    throw new IllegalArgumentException("Identity and application names are required");
+}
+Identity selectedIdentity = context.getObjectByName(Identity.class, identityName);
+Application targetApplication = context.getObjectByName(Application.class, applicationName);
+if (selectedIdentity == null || targetApplication == null) {
+    throw new IllegalArgumentException("Identity or application was not found");
+}
+if (selectedIdentity.isInactive()) {
+    throw new IllegalArgumentException("Inactive identity requires separate review");
+}
+List matchingLinks = new ArrayList();
+List links = selectedIdentity.getLinks();
+if (links != null) {
+    for (Object value : links) {
+        Link link = (Link) value;
+        if (link != null && targetApplication.getName().equals(link.getApplicationName())) {
+            matchingLinks.add(link);
+        }
+    }
+}
+if (matchingLinks.size() > 1) {
+    throw new IllegalStateException("Multiple matching accounts require explicit selection");
+}
+Map decision = new HashMap();
+decision.put("application", targetApplication.getName());
+decision.put("identityName", selectedIdentity.getName());
+if (matchingLinks.isEmpty()) {
+    decision.put("action", "CREATE_CANDIDATE");
+} else {
+    Link existingAccount = (Link) matchingLinks.get(0);
+    String nativeIdentity = existingAccount.getNativeIdentity();
+    if (nativeIdentity == null || nativeIdentity.trim().length() == 0) {
+        throw new IllegalStateException("Existing account has no native identity");
+    }
+    decision.put("action", "MODIFY_CANDIDATE");
+    decision.put("nativeIdentity", nativeIdentity);
+}
+// A missing Link is not proof the target account is absent. Reconcile first.
+// Nothing is submitted, approved, created, or modified by this helper.
+return decision;

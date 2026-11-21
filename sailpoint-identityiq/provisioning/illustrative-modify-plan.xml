@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Newly authored structural illustration, not an IIQ export or deployable request.
+     No execution performed. Confirm schema and API against the installed IIQ patch.
+     Use an approved narrow lab entitlement; do not substitute DBA as birthright access. -->
+<ProvisioningPlan>
+  <AccountRequest application="YOUR_ORACLE_APPLICATION"
+                  nativeIdentity="YOUR_EXISTING_ORACLE_NATIVE_IDENTITY"
+                  op="Modify">
+    <AttributeRequest name="YOUR_ENTITLEMENT_ATTRIBUTE"
+                      op="Add"
+                      value="YOUR_APPROVED_LAB_ROLE"/>
+  </AccountRequest>
+</ProvisioningPlan>

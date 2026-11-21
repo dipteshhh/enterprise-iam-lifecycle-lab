@@ -1,0 +1,2 @@
+employeeID,firstName,lastName,fullName,email,phoneNumber,jobTitle,department,managerEmployeeID,employmentStatus,startDate
+401,Mitch,Armstrong,Mitch Armstrong,mitch.armstrong@example.org,+1-202-555-0103,Reporting Analyst,Operations,100,active,2026-04-06

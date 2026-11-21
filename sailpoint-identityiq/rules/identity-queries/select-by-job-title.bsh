@@ -1,0 +1,24 @@
+// Newly authored illustrative helper; NOT verified in IdentityIQ.
+// Inject non-null context and String jobTitle; validate searchable mapping locally.
+import java.util.List;
+import java.util.ArrayList;
+import sailpoint.object.Identity;
+import sailpoint.object.Filter;
+import sailpoint.object.QueryOptions;
+
+if (jobTitle == null || jobTitle.trim().length() == 0) {
+    throw new IllegalArgumentException("A job title is required");
+}
+
+QueryOptions options = new QueryOptions();
+options.addFilter(Filter.eq("jobTitle", jobTitle.trim()));
+List identities = context.getObjects(Identity.class, options);
+List identityNames = new ArrayList();
+for (Object value : identities) {
+    Identity identity = (Identity) value;
+    if (identity != null && identity.getName() != null) {
+        identityNames.add(identity.getName());
+    }
+}
+// This returns names. A form whose value type is Identity may need IDs instead.
+return identityNames;
