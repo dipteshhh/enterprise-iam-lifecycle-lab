@@ -1,0 +1,91 @@
+// Sanitized plan-construction practice; not an original IIQ export.
+// Inputs: context, identityName, applicationName, requestedRoles (List<String>),
+//         newAccountName (String, needed only when no Oracle Link exists).
+// Returns a ProvisioningPlan. It never executes, compiles or launches a workflow.
+import java.util.ArrayList;
+import java.util.List;
+import sailpoint.object.Application;
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+
+if (identityName == null || identityName.trim().length() == 0 ||
+    applicationName == null || applicationName.trim().length() == 0) {
+    throw new IllegalArgumentException("Identity and application names are required");
+}
+if (!(requestedRoles instanceof List) || requestedRoles.isEmpty()) {
+    throw new IllegalArgumentException("Provide a nonempty list of approved lab roles");
+}
+List roles = new ArrayList();
+for (Object value : requestedRoles) {
+    if (!(value instanceof String) || ((String) value).trim().length() == 0) {
+        throw new IllegalArgumentException("Every role must be a nonblank string");
+    }
+    String roleName = ((String) value).trim();
+    if (!roles.contains(roleName)) roles.add(roleName);
+}
+
+Identity identity = context.getObjectByName(Identity.class, identityName.trim());
+Application application = context.getObjectByName(Application.class, applicationName.trim());
+if (identity == null || application == null) {
+    throw new IllegalArgumentException("Identity or application was not found");
+}
+if (application.getAccountSchema() == null ||
+    !"USERNAME".equals(application.getAccountSchema().getIdentityAttribute()) ||
+    application.getAccountSchema().getAttributeDefinition("ROLES") == null) {
+    throw new IllegalStateException("Confirm the Oracle USERNAME and ROLES schema first");
+}
+
+List oracleLinks = new ArrayList();
+if (identity.getLinks() != null) {
+    for (Object value : identity.getLinks()) {
+        Link link = (Link) value;
+        if (link != null && application.getName().equals(link.getApplicationName())) {
+            oracleLinks.add(link);
+        }
+    }
+}
+if (oracleLinks.size() > 1) {
+    throw new IllegalStateException("Multiple Oracle accounts require explicit selection");
+}
+
+ProvisioningPlan plan = new ProvisioningPlan();
+plan.setIdentity(identity);
+String nativeIdentity;
+String accountInstance = null;
+if (oracleLinks.size() == 1) {
+    // Scenario 1: keep the existing account key; construct MODIFY only.
+    Link existingLink = (Link) oracleLinks.get(0);
+    nativeIdentity = existingLink.getNativeIdentity();
+    accountInstance = existingLink.getInstance();
+    if (nativeIdentity == null || nativeIdentity.trim().length() == 0) {
+        throw new IllegalStateException("The existing Oracle Link has no native identity");
+    }
+} else {
+    // Scenario 2: proposed CREATE, then a separate MODIFY in the same plan.
+    // No Link is not proof of target absence. No ordering guarantee is implied.
+    if (newAccountName == null || newAccountName.trim().length() == 0) {
+        throw new IllegalArgumentException("Provide a proposed new Oracle account name");
+    }
+    nativeIdentity = newAccountName.trim();
+    AccountRequest createRequest = new AccountRequest();
+    createRequest.setApplication(application.getName());
+    createRequest.setNativeIdentity(nativeIdentity);
+    createRequest.setOperation(AccountRequest.Operation.Create);
+    createRequest.add(new AttributeRequest("USERNAME", ProvisioningPlan.Operation.Set, nativeIdentity));
+    // Password and other required Create inputs must come from protected policy.
+    plan.add(createRequest);
+}
+
+AccountRequest modifyRequest = new AccountRequest();
+modifyRequest.setApplication(application.getName());
+modifyRequest.setNativeIdentity(nativeIdentity);
+modifyRequest.setInstance(accountInstance);
+modifyRequest.setOperation(AccountRequest.Operation.Modify);
+for (Object role : roles) {
+    modifyRequest.add(new AttributeRequest("ROLES", ProvisioningPlan.Operation.Add, role));
+}
+plan.add(modifyRequest);
+return plan;
