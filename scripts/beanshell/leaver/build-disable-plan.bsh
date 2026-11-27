@@ -1,0 +1,29 @@
+// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName. Return -> disablePlan. Constructs only.
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+ProvisioningPlan plan = new ProvisioningPlan();
+plan.setIdentity(iden);
+if (iden.getLinks() != null) {
+    for (Object value : iden.getLinks()) {
+        Link link = (Link) value;
+        if (link != null && "Oracle Application".equals(link.getApplicationName())) {
+            String nativeIdentity = link.getNativeIdentity();
+            if (nativeIdentity == null || nativeIdentity.trim().length() == 0) {
+                throw new IllegalStateException("Oracle Link has no native identity");
+            }
+            AccountRequest acctReq = new AccountRequest();
+            acctReq.setApplication(link.getApplicationName());
+            acctReq.setNativeIdentity(nativeIdentity);
+            acctReq.setInstance(link.getInstance());
+            acctReq.setOperation(AccountRequest.Operation.Disable);
+            plan.add(acctReq);
+        }
+    }
+}
+return plan;

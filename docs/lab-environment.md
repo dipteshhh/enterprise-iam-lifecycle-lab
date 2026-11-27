@@ -1,5 +1,11 @@
 # Reported lab environment
 
+## November 26 lifecycle update
+
+The [Leaver Lab](../labs/leaver/README.md) reports SailPoint IdentityIQ on Apache Tomcat with MySQL backend persistence, Oracle Database in Docker, DBeaver readback, Java/BeanShell, XML workflow configuration, Log4j2 `loggerDex`, ProvisioningPlan APIs, LCM Provisioning and the Connector API. **Northstar Workday HR is an authoritative CSV simulation**; **Oracle Application** is the connected target for account creation/disablement, role and system-privilege management. No real Workday integration or real employee/patient data is involved.
+
+Exact November 26 versions and original configuration exports were not supplied. The baseline and previously inspected versions below remain historical observations, not a newly validated support matrix. Leaver source added to the repository is reconstructed and was not deployed during this update. [Provenance](evidence/leaver-2026-11-26.md).
+
 **Status: Historical environment evidence pending, with scoped runtime observations in E-004.** The table preserves the original reported baseline; the later observations below resolve selected facts, not vendor compatibility or every component.
 
 | Component | Reported environment | Missing verification |

@@ -1,0 +1,26 @@
+// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName, assignedBusinessRoles (List of role names).
+// Return -> roleRemovalPlan. Constructs only; does not delete Bundle definitions.
+import sailpoint.object.Identity;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+ProvisioningPlan plan = new ProvisioningPlan();
+plan.setIdentity(iden);
+AccountRequest acctReq = new AccountRequest();
+acctReq.setApplication("IIQ");
+acctReq.setNativeIdentity(iden.getName());
+acctReq.setOperation(AccountRequest.Operation.Modify);
+if (assignedBusinessRoles != null) {
+    for (Object roleName : assignedBusinessRoles) {
+        acctReq.add(new AttributeRequest("assignedRoles",
+            ProvisioningPlan.Operation.Remove, roleName));
+    }
+}
+if (acctReq.getAttributeRequests() != null && !acctReq.getAttributeRequests().isEmpty()) {
+    plan.add(acctReq);
+}
+return plan;

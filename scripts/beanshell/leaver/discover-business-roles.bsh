@@ -1,0 +1,20 @@
+// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName. Return -> assignedBusinessRoles (List of names).
+import java.util.ArrayList;
+import java.util.List;
+import sailpoint.object.Bundle;
+import sailpoint.object.Identity;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+List assigned = new ArrayList();
+if (iden.getAssignedRoles() != null) {
+    for (Object value : iden.getAssignedRoles()) {
+        Bundle role = (Bundle) value;
+        if (role != null && "business".equals(role.getType())) {
+            assigned.add(role.getName());
+        }
+    }
+}
+// Name-based assignment removal only; assignment-ID handling is future work.
+return assigned;

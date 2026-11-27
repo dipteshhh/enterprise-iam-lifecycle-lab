@@ -1,5 +1,7 @@
 # Oracle Database aggregation and access provisioning
 
+**Later implementation:** [E-004](../../../docs/evidence/oracle-create-modify-2026-11-20.md) contains captured scoped Create/Modify execution. The [November 26 Leaver Lab](../../../labs/leaver/README.md) adds owner-reported account locking, role-based deprovisioning, live connector retrieval and remaining `ROLES` / `SYSTEM_PRIVILEGES` removal, with [read-only verification SQL](../../../scripts/sql/verify-oracle-offboarding.sql). Original Leaver exports/results were not supplied. The historical Ann/Bill narrative and configuration limitations below remain at their original evidence scope.
+
 **Status: Previously Completed, Evidence Pending.** The maintainer describes successful access-request and provisioning experiments, including Ann Parson approving a request involving Bill Murray. Original application exports, request records, and database results have not been inspected.
 
 ## Objective and business requirement

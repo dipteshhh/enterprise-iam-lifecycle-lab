@@ -1,6 +1,6 @@
 # Northstar Health business scenario
 
-**Status: Conceptual.** Northstar Health is a fictional healthcare organization connecting these exercises. The lab uses synthetic workforce records only, with no patients, actual healthcare integration or compliance certification.
+Northstar Health is a fictional healthcare organization connecting these exercises. The business requirements below are a model; Joiner is implemented/tested and Leaver primary scenarios are tested as reported in the November 26 update. Mover remains planned. [Joiner](../labs/joiner/README.md) · [Leaver](../labs/leaver/README.md) · [Evidence limits](../docs/evidence/leaver-2026-11-26.md). The lab uses synthetic workforce records only, with no patients, actual healthcare integration or compliance certification.
 
 Employees, contractors, clinicians, IT staff, administrators and external partners need appropriate access as their relationship to the organization changes. HR owns employment facts. Governance connects business decisions to directory/application permissions; authentication is handled by directories and identity providers rather than inferred from governance approval.
 

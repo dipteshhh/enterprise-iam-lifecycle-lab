@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated reconstruction; NOT an original IIQ export. -->
+<Workflow name="Northstar Leaver Workflow - Reconstructed Example" type="IdentityLifecycle" explicitTransitions="true">
+  <Description>RECONSTRUCTED, UNEXECUTED documentation example from the owner's November 26, 2026 narrative. Not original exported source or test evidence. Review local schema, references, LCM arguments and event configuration before any isolated import. No automated result gate or reconciliation.</Description>
+  <Variable name="identityName" type="string" input="true">
+    <Description>Lifecycle input: exact IIQ Identity name.</Description>
+  </Variable>
+  <Variable name="hasOracleAccount" type="boolean" initializer="false">
+    <Description>Matching Oracle Link was discovered.</Description>
+  </Variable>
+  <Variable name="assignedBusinessRoles" type="List">
+    <Description>Assigned business Bundle names.</Description>
+  </Variable>
+  <Variable name="oracleRoles" type="Map">
+    <Description>Early stored-Link ROLES snapshots by native identity.</Description>
+  </Variable>
+  <Variable name="oracleSystemPrivileges" type="Map">
+    <Description>Early SYSTEM_PRIVILEGES snapshots by native identity.</Description>
+  </Variable>
+  <Variable name="disablePlan" type="sailpoint.object.ProvisioningPlan">
+    <Description>Oracle Disable requests.</Description>
+  </Variable>
+  <Variable name="roleRemovalPlan" type="sailpoint.object.ProvisioningPlan">
+    <Description>Internal IIQ role removals.</Description>
+  </Variable>
+  <Variable name="entitlementRemovalPlan" type="sailpoint.object.ProvisioningPlan">
+    <Description>Remaining live Oracle entitlements.</Description>
+  </Variable>
+  <Step name="Start" icon="Start" posX="80" posY="80">
+    <Description>Reconstructed step 1: Start. See labs/leaver/workflow-design.md.</Description>
+    <Transition to="Log Terminated Employee" />
+  </Step>
+  <Step name="Log Terminated Employee" icon="Task" posX="340" posY="80">
+    <Arg name="identityName" value="ref:identityName" />
+    <Description>Reconstructed step 2: Log Terminated Employee. See labs/leaver/workflow-design.md.</Description>
+    <Script>
+      <Source>// RECONSTRUCTED from the owner's lab narrative. Not original/exported/IIQ-tested.
+// Workflow inputs: context, identityName. Reads IIQ and logs minimal metadata.
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sailpoint.object.Identity;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+Logger loggerDex = LogManager.getLogger("loggerDex");
+loggerDex.info("Northstar Leaver subject=" + iden.getName()
+    + "; employmentStatus=" + iden.getAttribute("employmentStatus"));
+// Logging proves this step was reached, not successful provisioning.
+return null;
+</Source>
+    </Script>
+    <Transition to="Check Oracle Account" />
+  </Step>
+  <Step name="Check Oracle Account" icon="Task" posX="600" posY="80" resultVariable="hasOracleAccount">
+    <Arg name="identityName" value="ref:identityName" />
+    <Description>Reconstructed step 3: Check Oracle Account. See labs/leaver/workflow-design.md.</Description>
+    <Script>
+      <Source>// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName. Return -&gt; hasOracleAccount. No target read/write.
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+if (iden.getLinks() != null) {
+    for (Object value : iden.getLinks()) {
+        Link link = (Link) value;
+        if (link != null &amp;&amp; "Oracle Application".equals(link.getApplicationName())) {
+            return Boolean.TRUE;
+        }
+    }
+}
+return Boolean.FALSE;
+</Source>
+    </Script>
+    <Transition to="Discover Assigned Business Roles" />
+  </Step>
+  <Step name="Discover Assigned Business Roles" icon="Task" posX="860" posY="80" resultVariable="assignedBusinessRoles">
+    <Arg name="identityName" value="ref:identityName" />
+    <Description>Reconstructed step 4: Discover Assigned Business Roles. See labs/leaver/workflow-design.md.</Description>
+    <Script>
+      <Source>// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName. Return -&gt; assignedBusinessRoles (List of names).
+import java.util.ArrayList;
+import java.util.List;
+import sailpoint.object.Bundle;
+import sailpoint.object.Identity;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+List assigned = new ArrayList();
+if (iden.getAssignedRoles() != null) {
+    for (Object value : iden.getAssignedRoles()) {
+        Bundle role = (Bundle) value;
+        if (role != null &amp;&amp; "business".equals(role.getType())) {
+            assigned.add(role.getName());
+        }
+    }
+}
+// Name-based assignment removal only; assignment-ID handling is future work.
+return assigned;
+</Source>
+    </Script>
+    <Transition to="Discover Oracle Entitlements" />
+  </Step>
+  <Step name="Discover Oracle Entitlements" icon="Task" posX="80" posY="240">
+    <Arg name="identityName" value="ref:identityName" />
+    <Description>Reconstructed step 5: Discover Oracle Entitlements. See labs/leaver/workflow-design.md.</Description>
+    <Script>
+      <Source>// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName, wfcontext. Stored-Link snapshots only.
+// Sets oracleRoles / oracleSystemPrivileges as Maps keyed by native identity.
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+
+List valuesAsList(Object raw) {
+    List values = new ArrayList();
+    if (raw instanceof Collection) {
+        for (Object value : (Collection) raw) {
+            if (value != null) values.add(value);
+        }
+    } else if (raw != null) {
+        values.add(raw);
+    }
+    return values;
+}
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+Map roles = new LinkedHashMap();
+Map privileges = new LinkedHashMap();
+if (iden.getLinks() != null) {
+    for (Object value : iden.getLinks()) {
+        Link link = (Link) value;
+        if (link != null &amp;&amp; "Oracle Application".equals(link.getApplicationName())) {
+            String nativeIdentity = link.getNativeIdentity();
+            if (nativeIdentity == null || nativeIdentity.trim().length() == 0) {
+                throw new IllegalStateException("Oracle Link has no native identity");
+            }
+            roles.put(nativeIdentity, valuesAsList(link.getAttribute("ROLES")));
+            privileges.put(nativeIdentity,
+                valuesAsList(link.getAttribute("SYSTEM_PRIVILEGES")));
+        }
+    }
+}
+wfcontext.setVariable("oracleRoles", roles);
+wfcontext.setVariable("oracleSystemPrivileges", privileges);
+// Never use this early snapshot as the post-role-removal source of truth.
+return null;
+</Source>
+    </Script>
+    <Transition to="Build Disable Provisioning Plan" />
+  </Step>
+  <Step name="Build Disable Provisioning Plan" icon="Task" posX="340" posY="240" resultVariable="disablePlan">
+    <Arg name="identityName" value="ref:identityName" />
+    <Description>Reconstructed step 6: Build Disable Provisioning Plan. See labs/leaver/workflow-design.md.</Description>
+    <Script>
+      <Source>// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName. Return -&gt; disablePlan. Constructs only.
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+ProvisioningPlan plan = new ProvisioningPlan();
+plan.setIdentity(iden);
+if (iden.getLinks() != null) {
+    for (Object value : iden.getLinks()) {
+        Link link = (Link) value;
+        if (link != null &amp;&amp; "Oracle Application".equals(link.getApplicationName())) {
+            String nativeIdentity = link.getNativeIdentity();
+            if (nativeIdentity == null || nativeIdentity.trim().length() == 0) {
+                throw new IllegalStateException("Oracle Link has no native identity");
+            }
+            AccountRequest acctReq = new AccountRequest();
+            acctReq.setApplication(link.getApplicationName());
+            acctReq.setNativeIdentity(nativeIdentity);
+            acctReq.setInstance(link.getInstance());
+            acctReq.setOperation(AccountRequest.Operation.Disable);
+            plan.add(acctReq);
+        }
+    }
+}
+return plan;
+</Source>
+    </Script>
+    <Transition to="Execute Disable Provisioning Plan" when="ref:hasOracleAccount" />
+    <Transition to="Build Business Role Removal Plan" />
+  </Step>
+  <Step name="Execute Disable Provisioning Plan" icon="Provision" posX="600" posY="240">
+    <Arg name="plan" value="ref:disablePlan" />
+    <Arg name="identityName" value="ref:identityName" />
+    <Arg name="approvalScheme" value="none" />
+    <Arg name="foregroundProvisioning" value="true" />
+    <Arg name="notificationScheme" value="none" />
+    <Description>Reconstructed step 7: Execute Disable Provisioning Plan. See labs/leaver/workflow-design.md.</Description>
+    <WorkflowRef>
+      <Reference class="sailpoint.object.Workflow" name="LCM Provisioning" />
+    </WorkflowRef>
+    <Transition to="Build Business Role Removal Plan" />
+  </Step>
+  <Step name="Build Business Role Removal Plan" icon="Task" posX="860" posY="240" resultVariable="roleRemovalPlan">
+    <Arg name="identityName" value="ref:identityName" />
+    <Arg name="assignedBusinessRoles" value="ref:assignedBusinessRoles" />
+    <Description>Reconstructed step 8: Build Business Role Removal Plan. See labs/leaver/workflow-design.md.</Description>
+    <Script>
+      <Source>// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName, assignedBusinessRoles (List of role names).
+// Return -&gt; roleRemovalPlan. Constructs only; does not delete Bundle definitions.
+import sailpoint.object.Identity;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+ProvisioningPlan plan = new ProvisioningPlan();
+plan.setIdentity(iden);
+AccountRequest acctReq = new AccountRequest();
+acctReq.setApplication("IIQ");
+acctReq.setNativeIdentity(iden.getName());
+acctReq.setOperation(AccountRequest.Operation.Modify);
+if (assignedBusinessRoles != null) {
+    for (Object roleName : assignedBusinessRoles) {
+        acctReq.add(new AttributeRequest("assignedRoles",
+            ProvisioningPlan.Operation.Remove, roleName));
+    }
+}
+if (acctReq.getAttributeRequests() != null &amp;&amp; !acctReq.getAttributeRequests().isEmpty()) {
+    plan.add(acctReq);
+}
+return plan;
+</Source>
+    </Script>
+    <Transition to="Execute Business Role Removal Plan">
+      <Script>
+        <Source>return roleRemovalPlan != null
+    &amp;&amp; roleRemovalPlan.getAccountRequests() != null
+    &amp;&amp; !roleRemovalPlan.getAccountRequests().isEmpty();</Source>
+      </Script>
+    </Transition>
+    <Transition to="Build Oracle Entitlement Removal Plan" />
+  </Step>
+  <Step name="Execute Business Role Removal Plan" icon="Provision" posX="80" posY="400">
+    <Arg name="plan" value="ref:roleRemovalPlan" />
+    <Arg name="identityName" value="ref:identityName" />
+    <Arg name="approvalScheme" value="none" />
+    <Arg name="foregroundProvisioning" value="true" />
+    <Arg name="notificationScheme" value="none" />
+    <Description>Reconstructed step 9: Execute Business Role Removal Plan. See labs/leaver/workflow-design.md.</Description>
+    <WorkflowRef>
+      <Reference class="sailpoint.object.Workflow" name="LCM Provisioning" />
+    </WorkflowRef>
+    <Transition to="Build Oracle Entitlement Removal Plan" />
+  </Step>
+  <Step name="Build Oracle Entitlement Removal Plan" icon="Task" posX="340" posY="400" resultVariable="entitlementRemovalPlan">
+    <Arg name="identityName" value="ref:identityName" />
+    <Description>Reconstructed step 10: Build Oracle Entitlement Removal Plan. See labs/leaver/workflow-design.md.</Description>
+    <Script>
+      <Source>// RECONSTRUCTED example around the connector/AttributeRequest fragments supplied
+// by the owner. Not an original export; not imported or executed in IIQ.
+// Inputs: context, identityName. Return -&gt; entitlementRemovalPlan.
+// Reads Oracle through the connector; constructs a plan but does not execute it.
+// Requires ROLES / SYSTEM_PRIVILEGES on the actual connector account schema.
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import sailpoint.connector.Connector;
+import sailpoint.connector.ConnectorFactory;
+import sailpoint.object.Application;
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+import sailpoint.object.ResourceObject;
+
+List valuesAsList(Object raw) {
+    List values = new ArrayList();
+    if (raw instanceof Collection) {
+        for (Object value : (Collection) raw) {
+            if (value != null) values.add(value);
+        }
+    } else if (raw != null) {
+        values.add(raw);
+    }
+    return values;
+}
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+ProvisioningPlan plan = new ProvisioningPlan();
+plan.setIdentity(iden);
+if (iden.getLinks() != null) {
+    for (Object value : iden.getLinks()) {
+        Link link = (Link) value;
+        if (link == null || !"Oracle Application".equals(link.getApplicationName())) continue;
+        String nativeIdentity = link.getNativeIdentity();
+        if (nativeIdentity == null || nativeIdentity.trim().length() == 0) {
+            throw new IllegalStateException("Oracle Link has no native identity");
+        }
+
+        // Owner-supplied live retrieval pattern. Does not persist a Link update.
+        Application app = link.getApplication();
+        if (app == null) throw new IllegalStateException("Oracle application was not found");
+        Connector connector = ConnectorFactory.getConnector(app, null);
+        ResourceObject account = connector.getObject("account", link.getNativeIdentity(), null);
+        // A failed/null read is not evidence of an account with no entitlements.
+        if (account == null) throw new IllegalStateException("Oracle account read returned null");
+
+        AccountRequest acctReq = new AccountRequest();
+        acctReq.setApplication(app.getName());
+        acctReq.setNativeIdentity(nativeIdentity);
+        acctReq.setInstance(link.getInstance());
+        acctReq.setOperation(AccountRequest.Operation.Modify);
+        for (String attribute : new String[] {"ROLES", "SYSTEM_PRIVILEGES"}) {
+            // Preserve exact values, including the connector's ADMIN_OPTION data.
+            for (Object entitlement : valuesAsList(account.getAttribute(attribute))) {
+                AttributeRequest attrReq = new AttributeRequest(
+                    attribute, ProvisioningPlan.Operation.Remove, entitlement);
+                acctReq.add(attrReq);
+            }
+        }
+        if (acctReq.getAttributeRequests() != null &amp;&amp; !acctReq.getAttributeRequests().isEmpty()) {
+            plan.add(acctReq);
+        }
+    }
+}
+// No per-employee role names, direct execution, reconciliation or retry here.
+return plan;
+</Source>
+    </Script>
+    <Transition to="Execute Oracle Entitlement Removal Plan">
+      <Script>
+        <Source>return entitlementRemovalPlan != null
+    &amp;&amp; entitlementRemovalPlan.getAccountRequests() != null
+    &amp;&amp; !entitlementRemovalPlan.getAccountRequests().isEmpty();</Source>
+      </Script>
+    </Transition>
+    <Transition to="Stop" />
+  </Step>
+  <Step name="Execute Oracle Entitlement Removal Plan" icon="Provision" posX="600" posY="400">
+    <Arg name="plan" value="ref:entitlementRemovalPlan" />
+    <Arg name="identityName" value="ref:identityName" />
+    <Arg name="approvalScheme" value="none" />
+    <Arg name="foregroundProvisioning" value="true" />
+    <Arg name="notificationScheme" value="none" />
+    <Description>Reconstructed step 11: Execute Oracle Entitlement Removal Plan. See labs/leaver/workflow-design.md.</Description>
+    <WorkflowRef>
+      <Reference class="sailpoint.object.Workflow" name="LCM Provisioning" />
+    </WorkflowRef>
+    <Transition to="Stop" />
+  </Step>
+  <Step name="Stop" icon="Stop" posX="860" posY="400">
+    <Description>Reconstructed step 12: Stop. See labs/leaver/workflow-design.md.</Description>
+  </Step>
+</Workflow>

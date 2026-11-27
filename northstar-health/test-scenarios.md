@@ -1,6 +1,6 @@
 # Acceptance scenarios
 
-**Status: Planned.** This table defines expected outcomes; it contains no successful execution claims. Record actual outcomes using the [evidence ledger](../docs/evidence/README.md), including target readback and reconciliation.
+**Scope: broader acceptance criteria, originally planned.** This table defines expected outcomes, not blanket successful execution claims. Later bounded evidence is in [E-004](../docs/evidence/oracle-create-modify-2026-11-20.md), and the November 26 owner-reported Leaver outcomes are in the [four-scenario test matrix](../labs/leaver/test-scenarios.md). Those narrower tests do not satisfy every control below, such as sessions, automated escalation or pre-hire activation. Record actual outcomes using the [evidence ledger](../docs/evidence/README.md).
 
 | ID / scope | Input or precondition | Expected control and evidence |
 |---|---|---|

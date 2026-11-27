@@ -1,6 +1,37 @@
-# Current reported lab architecture
+# Current lab architecture
 
-**Status: Previously Completed, Evidence Pending.** This diagram reflects E-002, the owner's lab history. These are independently exercised lab connections, not a verified continuous lifecycle. No deployed configuration was inspected; no runtime integration is marked Verified.
+## November 26 lifecycle implementation
+
+Joiner is implemented/tested and Leaver has its primary provisioning scenarios tested **as reported by the owner**. Mover is planned. The diagram represents the current reported design, not a captured runtime trace. [Leaver documentation](../../labs/leaver/README.md), [conditional step graph](../../labs/leaver/workflow-design.md) and [E-005 evidence limits](../evidence/leaver-2026-11-26.md).
+
+```mermaid
+flowchart LR
+    HR["Northstar Workday HR - synthetic CSV"] -->|"Northstar Account Aggregation"| CUBE
+    subgraph Runtime["Apache Tomcat - SailPoint IdentityIQ"]
+        CUBE["Identity Cube and Links"] --> REF["Identity Refresh - Process Events"]
+        REF --> EVENT["employmentStatus Active to Terminated"]
+        EVENT --> WF["Northstar Leaver Workflow - IdentityLifecycle"]
+        WF --> DIS["LCM - disablePlan"]
+        WF --> ROLE["LCM - roleRemovalPlan"]
+        WF --> ENT["LCM - entitlementRemovalPlan"]
+        ROLE -->|"internal IIQ assignedRoles removal"| CUBE
+        DIS --> CON["Oracle connector"]
+        ENT --> CON
+        ROLE -->|"configured role-based deprovisioning"| CON
+        WF -->|"live getObject after role-removal branch"| CON
+        WF -.-> LOG["Log4j2 - loggerDex"]
+    end
+    CUBE --- DB["MySQL - IIQ backend database"]
+    CON -->|"account lock and access revocation"| ORACLE["Oracle Application - Oracle Database in Docker"]
+    ORACLE -->|"separate Oracle Account Aggregation"| CUBE
+    READ["DBeaver - independent verification"] -->|"DBA_USERS / DBA_ROLE_PRIVS / DBA_SYS_PRIVS"| ORACLE
+```
+
+The three LCM paths are conditional, as shown in the detailed step graph; this architecture diagram groups responsibilities. MySQL persistence is not the Oracle provisioning target. The earlier MySQL JDBC practice application below is another logical source. Log4j2 configuration, task/event/application exports and the original Leaver XML were not supplied; example source does not provision this environment. Retrieving a ResourceObject does not itself reconcile stored Links.
+
+## Preserved November 20 reported baseline
+
+**Historical status: Previously Completed, Evidence Pending.** The following diagram reflects E-002, before the separately captured E-004 exercise and later owner-reported E-005 lifecycle update. It preserves the earlier connections and their original evidence boundary.
 
 ```mermaid
 flowchart LR

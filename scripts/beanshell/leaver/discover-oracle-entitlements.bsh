@@ -1,0 +1,45 @@
+// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName, wfcontext. Stored-Link snapshots only.
+// Sets oracleRoles / oracleSystemPrivileges as Maps keyed by native identity.
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+
+List valuesAsList(Object raw) {
+    List values = new ArrayList();
+    if (raw instanceof Collection) {
+        for (Object value : (Collection) raw) {
+            if (value != null) values.add(value);
+        }
+    } else if (raw != null) {
+        values.add(raw);
+    }
+    return values;
+}
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+Map roles = new LinkedHashMap();
+Map privileges = new LinkedHashMap();
+if (iden.getLinks() != null) {
+    for (Object value : iden.getLinks()) {
+        Link link = (Link) value;
+        if (link != null && "Oracle Application".equals(link.getApplicationName())) {
+            String nativeIdentity = link.getNativeIdentity();
+            if (nativeIdentity == null || nativeIdentity.trim().length() == 0) {
+                throw new IllegalStateException("Oracle Link has no native identity");
+            }
+            roles.put(nativeIdentity, valuesAsList(link.getAttribute("ROLES")));
+            privileges.put(nativeIdentity,
+                valuesAsList(link.getAttribute("SYSTEM_PRIVILEGES")));
+        }
+    }
+}
+wfcontext.setVariable("oracleRoles", roles);
+wfcontext.setVariable("oracleSystemPrivileges", privileges);
+// Never use this early snapshot as the post-role-removal source of truth.
+return null;

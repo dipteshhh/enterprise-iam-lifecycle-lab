@@ -2,6 +2,8 @@
 
 The goal is evidence of a small working capability before expanding its scope. [Statuses](implementation-status.md) govern all claims; [test scenarios](../northstar-health/test-scenarios.md) define acceptance.
 
+**November 26 update:** Joiner is implemented/tested and Leaver primary scenarios are tested as reported by the owner; Mover is planned. [Current lifecycle status](../northstar-health/lifecycle-plan.md) and [Leaver limitations](../labs/leaver/future-enhancements.md) supersede the completion assumptions of the preserved phase plan below. Broader pre-hire, sessions, automated recovery and multi-application controls remain future work.
+
 | Phase | Practical outcome | Prerequisite | Completion evidence |
 |---|---|---|---|
 | 1 — Recover baseline | Record supported IIQ build/runtime and replay HR aggregation | Licensed existing lab and synthetic fixtures | Versions, settings, task result, mapped attributes, manager and replay check |
@@ -15,7 +17,9 @@ The goal is evidence of a small working capability before expanding its scope. [
 
 ## Next recommended lab
 
-Connect the [verified scoped Oracle account decisions](evidence/oracle-create-modify-2026-11-20.md) to the **existing custom selection form**, preserving server-side authorization, policy review and LCM approvals. Test missing-data, ambiguous-account and denial branches. Automatic correlation and login readiness remain separate exercises; the tested Create account lacks `CREATE SESSION`. Do not assume same-plan Create-then-Modify ordering. See [workflow WIP](../sailpoint-identityiq/workflows/README.md).
+**Retest the final no-Oracle-account Leaver path**, with and without assigned Business Roles, and capture original sanitized evidence. Then add provisioning result validation and recovery before broader offboarding targets. [Leaver future work](../labs/leaver/future-enhancements.md).
+
+The earlier [verified scoped Oracle account decisions](evidence/oracle-create-modify-2026-11-20.md) retain their original boundary: custom-form missing-data/authorization/denial branches, automatic correlation and login readiness were not established by that exercise. The tested Create account lacked `CREATE SESSION`. The later owner report of a same-Create-with-roles implementation is distinct from the unchanged earlier Create-plus-Modify construction example. See [workflow history and update](../sailpoint-identityiq/workflows/conditional-oracle-provisioning/README.md).
 
 ## Planned information architecture
 

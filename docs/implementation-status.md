@@ -1,10 +1,11 @@
 # Implementation status
 
-Last reviewed: **2026-11-20**. Scope: repository artifacts, the owner's narrative and the bounded Oracle runtime exercise in E-004. Historical claims remain distinct from newly observed results. [Evidence ledger](evidence/README.md).
+Last reviewed: **2026-11-26**. Scope: repository artifacts, owner-reported lifecycle implementation/results in E-005, and the separately captured bounded Oracle runtime exercise in E-004. Current owner-reported completion is distinct from independently inspected execution evidence. [Evidence ledger](evidence/README.md).
 
 | Status | Meaning |
 |---|---|
 | Verified | Inspected original implementation or test evidence confirms the stated scope worked. A local example test verifies only that example. |
+| Implemented / tested (owner-reported) | The owner reports implementation and the specified tests; original runtime evidence/source was not supplied for independent inspection. This is not automatically promoted to Verified. |
 | Previously Completed, Evidence Pending | Described in prior lab history; original source or verification evidence has not been inspected. |
 | In Progress | Actively being developed; successful completion is not claimed. |
 | Planned | Intended future practical exercise. |
@@ -34,10 +35,16 @@ Last reviewed: **2026-11-20**. Scope: repository artifacts, the owner's narrativ
 | Entra employeeId correlation | In Progress | Studied; prove unique match and ambiguity handling |
 | BeanShell identity count/name/email queries | Previously Completed, Evidence Pending | E-002; reconstructed snippets require IIQ execution evidence |
 | QueryOptions, logging and workflow form experiments | Previously Completed, Evidence Pending | E-002; inspect original rule signatures and workflow variables |
-| Original conditional Oracle selection-form workflow | In Progress | Existing workflow inspected; new scoped LCM harness tested both account branches, but original form/branch integration, authorization and broader failures remain unfinished |
-| Joiner lifecycle automation | In Progress | Design/early study; no complete workflow verified |
+| Original conditional Oracle selection-form workflow | Broader coverage unverified | Earlier custom-form gaps retained; E-005 reports later same-Create role assignment success for John after Jane's partial failure, without revised source or full form regression |
+| Joiner lifecycle automation | Implemented and tested (owner-reported) | E-005; [Joiner index](../labs/joiner/README.md) preserves earlier work and separates current status from missing full Joiner source/evidence |
 | Pre-hire disable/activation, username uniqueness and M365 licensing | Planned | Connectivity alone does not establish provisioning |
-| Mover, leaver and additional lifecycle automation | Planned | Defined acceptance scenarios; not executed |
+| Mover lifecycle automation | Planned | No Mover workflow or execution supplied |
+| Leaver lifecycle automation | Implemented; primary provisioning scenarios tested (owner-reported) | E-005; [Leaver Lab](../labs/leaver/README.md). Alex locking, Sarah role-based removal/reconciliation, John direct-grant cleanup. Mary's final no-account regression outstanding |
+| Leaver role-based Oracle deprovisioning | Tested in this configuration (owner-reported) | Sarah: dba - Business → dba - IT → five roles removed; not a universal role-removal guarantee |
+| Leaver dynamic direct-entitlement removal | Tested (owner-reported) | John: zero direct role/system-privilege rows; live connector retrieval documented. PUBLIC/object/session access untested |
+| Revised Create AccountRequest with role attributes | Successful later test (owner-reported) | Jane account created but missing ANALYST role caused grant failure; target role created; subsequent John provisioning succeeded. Original revised source unavailable |
+| Jane Doe entitlement recovery | Planned | Aggregation/correlation reported; entitlement recovery completion not supplied |
+| Leaver XML / BeanShell source in this update | Reconstructed, unexecuted example | Offline artifact checks only; no original Leaver export, schema import or IIQ execution |
 | On-premises AD domain, PowerShell and IIQ integration | Planned | No domain controller or local integration verified |
 | AD → Entra hybrid sync | Planned | Choose ownership/topology before building |
 | SailPoint ISC tenant/source/profile/transforms/access/governance/API | Planned | Tenant access unconfirmed; practical execution gated on access |
@@ -50,6 +57,6 @@ Last reviewed: **2026-11-20**. Scope: repository artifacts, the owner's narrativ
 
 ## Repository verification is separate
 
-The [quality record](quality-assurance.md) records repository checks. Those checks alone cannot verify integrations. E-004 separately supplies actual scoped IIQ/Oracle runtime evidence; it does not verify the other historical/platform rows. E-001 confirms repository history, not practical implementation.
+The [quality record](quality-assurance.md) records repository checks. Those checks alone cannot verify integrations. E-004 separately supplies actual scoped IIQ/Oracle runtime evidence; it does not verify the other historical/platform rows. E-005 records current owner-reported outcomes and their source/evidence gaps. E-001 confirms repository history, not practical implementation.
 
 To advance a row, attach a runtime evidence record with versions, inputs, actual results, target readback, failure/replay tests and reviewer observations. Narrow the row if only one branch or operation has been tested. If an environment becomes confirmed unavailable, record the actual blocker rather than assuming all planned topics are Blocked.

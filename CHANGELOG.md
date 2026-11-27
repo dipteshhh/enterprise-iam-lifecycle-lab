@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-26 — Northstar Health Leaver implementation documentation
+
+- Updated current Joiner/Mover/Leaver status from the owner's latest report, distinguishing reported results from captured runtime evidence.
+- Added the Leaver guide, eight-variable/twelve-step conditional workflow design, BeanShell/API implementation guide, four-scenario matrix, ten troubleshooting cases and future enhancements.
+- Added clearly labeled reconstructed/unexecuted workflow XML and seven canonical BeanShell examples, plus a deterministic XML builder; original Leaver exports were unavailable.
+- Added read-only Oracle offboarding verification SQL for Alex, Sarah and John, plus practical IAM concepts and current architecture diagrams.
+- Preserved previous Joiner/Oracle work, source, fixtures and runtime captures at their original paths. Added later Create-with-roles partial-failure/recovery lessons without rewriting earlier scripts or claiming Jane's entitlement recovery.
+- Retained Mary's final no-account regression, automated result/recovery/reconciliation and broader Oracle access coverage as outstanding work. See [quality assurance](docs/quality-assurance.md) for repository checks and their limits.
+
 ## 2026-11-20 — Scoped Oracle runtime verification
 
 - Inspected IIQ 8.3, its running JDK 17 service, saved Oracle connector/schema and existing Oracle Free target.

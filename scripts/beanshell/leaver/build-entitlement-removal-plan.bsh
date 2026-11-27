@@ -1,0 +1,71 @@
+// RECONSTRUCTED example around the connector/AttributeRequest fragments supplied
+// by the owner. Not an original export; not imported or executed in IIQ.
+// Inputs: context, identityName. Return -> entitlementRemovalPlan.
+// Reads Oracle through the connector; constructs a plan but does not execute it.
+// Requires ROLES / SYSTEM_PRIVILEGES on the actual connector account schema.
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import sailpoint.connector.Connector;
+import sailpoint.connector.ConnectorFactory;
+import sailpoint.object.Application;
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+import sailpoint.object.ProvisioningPlan;
+import sailpoint.object.ProvisioningPlan.AccountRequest;
+import sailpoint.object.ProvisioningPlan.AttributeRequest;
+import sailpoint.object.ResourceObject;
+
+List valuesAsList(Object raw) {
+    List values = new ArrayList();
+    if (raw instanceof Collection) {
+        for (Object value : (Collection) raw) {
+            if (value != null) values.add(value);
+        }
+    } else if (raw != null) {
+        values.add(raw);
+    }
+    return values;
+}
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+ProvisioningPlan plan = new ProvisioningPlan();
+plan.setIdentity(iden);
+if (iden.getLinks() != null) {
+    for (Object value : iden.getLinks()) {
+        Link link = (Link) value;
+        if (link == null || !"Oracle Application".equals(link.getApplicationName())) continue;
+        String nativeIdentity = link.getNativeIdentity();
+        if (nativeIdentity == null || nativeIdentity.trim().length() == 0) {
+            throw new IllegalStateException("Oracle Link has no native identity");
+        }
+
+        // Owner-supplied live retrieval pattern. Does not persist a Link update.
+        Application app = link.getApplication();
+        if (app == null) throw new IllegalStateException("Oracle application was not found");
+        Connector connector = ConnectorFactory.getConnector(app, null);
+        ResourceObject account = connector.getObject("account", link.getNativeIdentity(), null);
+        // A failed/null read is not evidence of an account with no entitlements.
+        if (account == null) throw new IllegalStateException("Oracle account read returned null");
+
+        AccountRequest acctReq = new AccountRequest();
+        acctReq.setApplication(app.getName());
+        acctReq.setNativeIdentity(nativeIdentity);
+        acctReq.setInstance(link.getInstance());
+        acctReq.setOperation(AccountRequest.Operation.Modify);
+        for (String attribute : new String[] {"ROLES", "SYSTEM_PRIVILEGES"}) {
+            // Preserve exact values, including the connector's ADMIN_OPTION data.
+            for (Object entitlement : valuesAsList(account.getAttribute(attribute))) {
+                AttributeRequest attrReq = new AttributeRequest(
+                    attribute, ProvisioningPlan.Operation.Remove, entitlement);
+                acctReq.add(attrReq);
+            }
+        }
+        if (acctReq.getAttributeRequests() != null && !acctReq.getAttributeRequests().isEmpty()) {
+            plan.add(acctReq);
+        }
+    }
+}
+// No per-employee role names, direct execution, reconciliation or retry here.
+return plan;

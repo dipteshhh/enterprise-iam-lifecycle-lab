@@ -1,5 +1,11 @@
 # Troubleshooting index
 
+## Latest lifecycle cases — November 26
+
+The [dedicated Leaver troubleshooting guide](../labs/leaver/troubleshooting.md) covers ten reported issues/engineering decisions with problem, observations, cause certainty, investigation, resolution and lessons: missing Oracle roles/partial Create, stale Links, live retrieval, empty plans, XML nesting, no-account continuation, role versus direct cleanup, independent SQL verification, potential UNLIMITED TABLESPACE side effects and redundant revokes. Jane's entitlement recovery remains planned; hypothetical dependent-privilege errors are not presented as observed failures. [Test matrix](../labs/leaver/test-scenarios.md) and [provenance](evidence/leaver-2026-11-26.md).
+
+## Preserved earlier diagnostic history
+
 These symptoms come from the owner's narrative. Candidate causes and diagnostic procedures are not claims that every issue was conclusively resolved. Preserve actual errors and retests in a future evidence record.
 
 | Symptom/history | Diagnostic sequence | Module |

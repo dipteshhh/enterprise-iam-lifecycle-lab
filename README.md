@@ -2,9 +2,35 @@
 
 An independently developed IAM and identity security portfolio by **Diptesh Shahi Thakuri**, a Computer Science graduate building practical engineering experience. The primary hands-on platform is **SailPoint IdentityIQ**. This repository connects application integration, identity governance, programming and troubleshooting through a fictional organization, **Northstar Health**.
 
-The focus is explainable implementation: how workforce data becomes an identity, how access is requested and provisioned, how failures are investigated, and how the result is verified. It does not claim production deployment or senior professional experience.
+The project demonstrates authoritative HR integration, Joiner and Leaver automation, role-based and direct entitlement provisioning, Java/BeanShell scripting, XML workflow development, Oracle integration, connector APIs, access reconciliation and IAM troubleshooting. Northstar Health is a hands-on enterprise simulation, not professional employment experience or a production healthcare deployment.
 
-> **Evidence boundary:** historical lab claims remain **Previously Completed, Evidence Pending** until original evidence is reviewed. A new, bounded **Oracle Create/Modify exercise is Verified** through actual IIQ requests, independent target readback and reconciled Links; this does not complete the original custom workflow. [Runtime evidence](docs/evidence/oracle-create-modify-2026-11-20.md) · [Status register](docs/implementation-status.md) · [Evidence ledger](docs/evidence/README.md).
+> **Evidence boundary:** November 26 lifecycle results below are the owner's reported implementation/testing outcomes. Original Leaver XML, screenshots, logs and DBeaver exports were not supplied; added Leaver source is clearly labeled **reconstructed and unexecuted**. Earlier captured Oracle Create/Modify results remain separately **Verified**. [November 26 provenance](docs/evidence/leaver-2026-11-26.md) · [Captured Oracle evidence](docs/evidence/oracle-create-modify-2026-11-20.md) · [Status register](docs/implementation-status.md).
+
+## Identity lifecycle status
+
+| Lifecycle | Status |
+|---|---|
+| [Joiner](labs/joiner/README.md) | Implemented and tested |
+| Mover | Planned |
+| [Leaver](labs/leaver/README.md) | Implemented, with primary provisioning scenarios tested |
+
+These are the current owner-reported lifecycle statuses. Detailed source/evidence limits remain explicit in each lab; the final no-Oracle-account Leaver path has not been separately retested after final workflow changes. Broader pre-hire, Entra and licensing work remains planned.
+
+## Latest lab: automated Northstar Health offboarding
+
+**Implementation and primary testing completed November 26, 2026.** An `Active` → `Terminated` change in the synthetic **Northstar Workday HR** CSV, followed by Northstar Account Aggregation and Identity Refresh with Process Events, launches **Northstar Leaver Workflow** (`IdentityLifecycle`). Twelve conditional steps discover accounts/access and use three LCM Provisioning calls to lock Oracle accounts, remove assigned Business Roles and revoke remaining Oracle roles/system privileges.
+
+Reported primary tests cover Alex Jones's account locking, Sarah Miller's role-based deprovisioning and reconciliation, and John Doe's direct entitlement removal. The workflow skips Oracle disabling when no Oracle Link exists and continues Business Role cleanup. A live connector read after role removal avoids relying on stale stored entitlement snapshots. John's zero direct-grant rows do not establish removal of PUBLIC grants, object privileges or existing sessions.
+
+[Leaver guide](labs/leaver/README.md) · [Conditional workflow diagram](labs/leaver/workflow-design.md) · [BeanShell/XML implementation](labs/leaver/implementation.md) · [Four-scenario test matrix](labs/leaver/test-scenarios.md) · [Failure/recovery case studies](labs/leaver/troubleshooting.md) · [Known limitations](labs/leaver/future-enhancements.md).
+
+## Engineering objectives
+
+- Automate identity lifecycle management from authoritative HR facts to connected application accounts.
+- Provision and deprovision accounts using role-based and direct entitlement requests.
+- Govern employee access throughout employment and maintain least privilege.
+- Reconcile IdentityIQ's stored access information with actual target access.
+- Investigate provisioning failures, partial changes and operational discrepancies using independent target verification.
 
 ## Northstar Health
 
@@ -15,27 +41,38 @@ Northstar Health is a fictional healthcare organization whose employees, contrac
 | Area | Scope and honest status |
 |---|---|
 | SailPoint IdentityIQ | Reported CSV aggregation, mapping, Identity Cubes, correlation, rules and workflow experiments; evidence pending |
-| Oracle Database | New scoped Create/Modify account/role tests Verified; broader historical aggregation, approvals and RBAC evidence pending |
+| Oracle Database | Scoped Create/Modify tests have captured evidence; later Leaver locking and role/direct entitlement removal tested as reported |
 | MySQL JDBC | Reported connection, five-record practice table, aggregation and mapping troubleshooting; evidence pending |
 | Microsoft Entra ID connector | Reported connectivity/schema work; evidence pending. End-to-end lifecycle provisioning unverified |
-| Custom conditional provisioning | In Progress: Oracle Create/Modify design, eligible identity selection and failure handling |
-| Joiner lifecycle | In Progress: study/design. Pre-hire activation, complete automation and licensing remain unverified/planned |
+| Custom Oracle provisioning | Later Create-with-roles success reported for John Doe after Jane Doe's partial failure; original revised source and broader form regression unavailable |
+| Joiner lifecycle | Implemented and tested as reported; earlier source/practice retained. Pre-hire/Entra/licensing coverage remains unverified/planned |
+| Leaver lifecycle | Implemented; primary locking, role-based removal and direct-grant removal scenarios tested as reported |
+| Mover lifecycle | Planned |
 | AD, hybrid identity and SailPoint ISC | Planned practical work; no working local AD domain or ISC tenant confirmed |
 | Authentication protocols and governance | Conceptual foundation with planned hands-on exercises |
 
-The reported local stack is macOS Apple Silicon, Tomcat 9, JDK 17 and MySQL 8, with Oracle Free in Docker. The exact IIQ build and support matrix have not been inspected. [Environment and limitations](docs/lab-environment.md).
+The reported local stack is macOS Apple Silicon, Tomcat 9, JDK 17 and MySQL 8, with Oracle Free in Docker. Earlier scoped testing inspected IIQ 8.3; the exact November 26 configuration and vendor-supported combination were not newly validated. [Environment and limitations](docs/lab-environment.md).
 
-## Current reported architecture
+## Current lab architecture
 
-Every connection below is based on lab history, with evidence pending; this is not a verified end-to-end lifecycle.
+The diagram shows the current reported lifecycle design, not a captured execution trace. MySQL persistence and the Oracle target have different roles. Northstar Workday HR is simulated by CSV, with no real Workday API or patient data.
 
 ```mermaid
 flowchart LR
-    HR["Synthetic HR CSV sources"] -->|"reported aggregation"| IIQ["Local IdentityIQ"]
-    MYSQL["MySQL JDBC practice source"] -->|"reported aggregation"| IIQ
-    IIQ -->|"reported access provisioning"| ORACLE["Oracle Database lab"]
-    ORACLE -->|"reported accounts and roles"| IIQ
-    IIQ -.->|"reported connectivity test only"| ENTRA["Microsoft Entra ID"]
+    HR["Northstar Workday HR - synthetic authoritative CSV"] -->|"Northstar Account Aggregation"| CUBE
+    subgraph IIQ["SailPoint IdentityIQ on Apache Tomcat"]
+        CUBE["Identity Cube and account Links"] --> REFRESH["Identity Refresh - Process Events"]
+        REFRESH --> EVENT["Active to Terminated lifecycle event"]
+        EVENT --> WF["Northstar Leaver Workflow - XML and BeanShell"]
+        WF --> LCM["Three LCM Provisioning calls - Disable, role removal, remaining access"]
+        WF -->|"live getObject read after role removal"| CON["Oracle connector"]
+        LCM --> CON
+        WF -.-> LOG["Log4j2 - loggerDex"]
+    end
+    CUBE --- MYSQL["MySQL - IIQ backend"]
+    CON -->|"lock account and revoke access"| ORACLE["Oracle Application - Database in Docker"]
+    ORACLE -->|"separate account aggregation and reconciliation"| CUBE
+    VERIFY["DBeaver - independent SQL verification"] -->|"read account state and direct grants"| ORACLE
 ```
 
 [Current architecture](docs/architecture/current-lab.md) · [Target IIQ and ISC alternatives](docs/architecture/target-architecture.md) · [Aggregation, provisioning and federation diagrams](docs/architecture/engineering-flows.md).
@@ -58,7 +95,7 @@ The evidence preserves a first Create no-op and no-email workflow warnings. The 
 | [Entra integration](sailpoint-identityiq/applications/entra-id/README.md) | Connector connectivity, employeeId matching and future pre-hire provisioning |
 | [Java/BeanShell rules](sailpoint-identityiq/rules/README.md) | Identity queries, null handling, filtered selection, Link inspection and logging |
 
-These are documented historical exercises, **not independently verified completed integrations**. Each module separates expected behavior from actual evidence and includes prerequisites, verification, troubleshooting, security and limitations.
+These historical modules retain their original evidence boundaries; later scoped runtime evidence and November 26 owner-reported outcomes are linked separately. Each module separates expected behavior from actual evidence and includes prerequisites, verification, troubleshooting, security and limitations.
 
 ## Work in progress and technical examples
 
@@ -66,7 +103,8 @@ These are documented historical exercises, **not independently verified complete
 - [Provisioning anatomy and XML illustration](sailpoint-identityiq/provisioning/README.md): plans, AccountRequests, AttributeRequests and execution/readback boundaries.
 - [Standalone Java username exercise](scripts/java/README.md): typed collections, input validation and collision modeling. New illustrative code, with local tests; no target reservation or concurrency guarantee.
 - [Synthetic HR fixtures](sample-data/synthetic/README.md), [MySQL setup SQL](scripts/sql/mysql-employees.sql) and [Oracle read-only verification SQL](scripts/sql/oracle-verification.sql).
-- [Joiner, mover and leaver implementation plan](northstar-health/lifecycle-plan.md), [access-request flow](northstar-health/access-request.md) and [20 acceptance scenarios](northstar-health/test-scenarios.md).
+- [Joiner index](labs/joiner/README.md), [lifecycle status and broader design](northstar-health/lifecycle-plan.md), [access-request flow](northstar-health/access-request.md) and [20 broader acceptance scenarios](northstar-health/test-scenarios.md).
+- [Leaver reconstructed source](labs/leaver/implementation.md), [read-only offboarding verification SQL](scripts/sql/verify-oracle-offboarding.sql) and [technical concepts](docs/technical-concepts.md).
 
 ## Platform expansion and IAM foundations
 
@@ -82,6 +120,9 @@ These are documented historical exercises, **not independently verified complete
 
 ```text
 docs/                    Status, evidence, environment, architecture and roadmap
+labs/joiner/             Current Joiner status and links to preserved prior work
+labs/leaver/             Leaver design, implementation, tests, troubleshooting and limits
+workflows/leaver/        Clearly labeled reconstructed workflow XML
 sailpoint-identityiq/     Existing lab history, rules, integration and workflow design
 sailpoint-isc/            Conceptual alternative and access-gated exercise roadmap
 active-directory/        Planned AD and hybrid lab
@@ -94,7 +135,7 @@ scripts/                 Canonical standalone Java, SQL and repository checks
 learning/                Experiments, authoritative resources and interview preparation
 ```
 
-Platform-specific `.bsh` source lives beside its rule documentation. Shared standalone source lives in `scripts/`; other modules link to it rather than duplicate it. There are no placeholder directories for unimplemented features.
+Earlier platform-specific `.bsh` files remain beside their documentation. New reconstructed Leaver scripts live in `scripts/beanshell/leaver/`; the generated XML embeds those canonical files. Shared Java/SQL/Python lives in `scripts/`. There are no empty evidence directories or fabricated screenshots/logs.
 
 ## Getting started
 
@@ -105,6 +146,7 @@ Platform-specific `.bsh` source lives beside its rule documentation. Shared stan
 
    ```sh
    python3 scripts/python/validate_repository.py
+   python3 scripts/python/build_leaver_workflow.py --check
    git diff --check
    ```
 
@@ -113,9 +155,9 @@ Platform-specific `.bsh` source lives beside its rule documentation. Shared stan
 
 ## Roadmap and maintenance
 
-Recover original evidence → complete conditional Oracle provisioning → implement one joiner → validate Entra pre-hire activation → add mover/leaver → build AD/hybrid → explore ISC as an alternative → deepen authentication and governance labs. [Detailed roadmap](docs/learning-roadmap.md) · [Troubleshooting](docs/troubleshooting.md) · [Resources](learning/resources.md) · [Contribution conventions](CONTRIBUTING.md) · [Quality record](docs/quality-assurance.md).
+Next: retest the final no-Oracle-account Leaver path and collect original sanitized evidence → add provisioning result validation, exception/recovery handling and automated reconciliation → implement Mover → extend to AD/Entra and broader governance. [Detailed roadmap](docs/learning-roadmap.md) · [Leaver enhancements](labs/leaver/future-enhancements.md) · [Troubleshooting](docs/troubleshooting.md) · [Resources](learning/resources.md) · [Contribution conventions](CONTRIBUTING.md) · [Quality record](docs/quality-assurance.md).
 
-Recommended future GitHub name: `enterprise-identity-security-lab`. The current URL remains unchanged; [inspection and rename implications](docs/repository-migration.md) explain the decision and remaining steps.
+The existing repository remains `enterprise-iam-lifecycle-lab`. A [historical naming proposal](docs/repository-migration.md) is retained for context; no rename or new repository is part of this update.
 
 ## Security and lab limitations
 

@@ -36,7 +36,7 @@ Managed identities remove the need for an application to manage a credential for
 
 ## Sarah Miller pre-hire acceptance plan
 
-**Status: Planned end-to-end validation; related joiner development is In Progress.** Use synthetic Sarah Miller and a configurable start date. Generate the candidate `smiller`, then check uniqueness and supported characters before reserving the actual UPN. Name collisions must not be silently merged.
+**Status: Planned end-to-end validation for this Entra/pre-hire extension.** The current owner-reported [Joiner status](../labs/joiner/README.md) does not establish Entra activation or licensing. Use synthetic Sarah Miller and a configurable start date. Generate the candidate `smiller`, then check uniqueness and supported characters before reserving the actual UPN. Name collisions must not be silently merged.
 
 1. Aggregate employee ID and verify a single IIQ identity, manager, and lifecycle dates.
 2. Confirm whether this is a cloud-only or AD-authoritative account path.

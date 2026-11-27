@@ -4,9 +4,9 @@
 
 ## An honest project introduction
 
-"I am building an enterprise identity-security lab around a fictional healthcare organization. My main hands-on platform is local SailPoint IdentityIQ. My lab history includes CSV and JDBC aggregation, identity mapping and correlation, Oracle access requests and role experiments, and an Entra connector connectivity test. The repository marks these historical results as evidence pending until I attach sanitized original artifacts. Conditional Oracle provisioning and joiner automation are in progress; AD and ISC exercises are planned."
+"I independently built a SailPoint IdentityIQ lifecycle lab for fictional Northstar Health using synthetic employee data. My Joiner work covers Oracle provisioning, and my Leaver workflow responds to an authoritative HR status change to lock Oracle accounts, remove Business Roles and revoke remaining database roles and system privileges. I investigated partial provisioning and stale account information, used the connector API for current account reads and checked target changes through DBeaver. Mover, broader application offboarding and automated failure/recovery controls are future work."
 
-Adapt that wording only after the [implementation tracker](../docs/implementation-status.md) changes based on inspected evidence. Do not describe illustrative code as an original exported implementation.
+This introduction reflects the owner's [November 26 reported outcomes](../docs/evidence/leaver-2026-11-26.md). Distinguish them from the earlier [captured scoped Create/Modify evidence](../docs/evidence/oracle-create-modify-2026-11-20.md). Explain Mary's outstanding final no-account regression and that the published Leaver XML/BeanShell is reconstructed, not an original export. Keep claims aligned with the [implementation tracker](../docs/implementation-status.md).
 
 ## Questions to answer with concrete evidence
 
@@ -23,7 +23,9 @@ Adapt that wording only after the [implementation tracker](../docs/implementatio
 | Why are identity attributes empty? | Source schema, account values, mapping and refresh are separate stages | The MySQL employeeID-only symptom and recorded mapping diagnosis |
 | Why choose a rule? | Evaluate out-of-box options first; customize only justified gaps | Rule purpose, inputs, null handling, version assumptions and test results |
 | How do OAuth, OIDC and SCIM differ? | API authorization, authentication and provisioning | [Protocol flows](../iam-fundamentals/protocols.md); future tests labelled Planned |
-| How do you prove offboarding worked? | Disablement, entitlement removal, sessions and target reconciliation are separate | Planned positive/negative tests; no claim that one flag instantly revokes every session |
+| How do you prove offboarding worked? | Disablement, entitlement removal, sessions and target reconciliation are separate | [Alex, Sarah and John outcomes and Mary's coverage gap](../labs/leaver/test-scenarios.md); no claim that locking ends all sessions |
+| Why read the connector after removing a Business Role? | A stored Link may still contain revoked values; live ResourceObject retrieval and persisted reconciliation differ | Sarah's stale five-role view and the [remaining-access builder](../labs/leaver/implementation.md) |
+| Can a failed request still create an account? | Account Create and entitlement changes can be partially applied | [Jane/John case study](../labs/leaver/troubleshooting.md); Jane's entitlement recovery remains future work |
 | How does IAM support healthcare security? | Least privilege, accountable approval, review and evidence | [Governance mapping](../identity-governance/README.md); no HIPAA compliance claim |
 
 ## Prepare one troubleshooting narrative
@@ -34,4 +36,4 @@ Avoid invented quantitative improvements, fake terminal results and hypothetical
 
 ## Next evidence-backed portfolio story
 
-Complete the conditional Oracle account lab with two synthetic identities: one already has an account and one does not. Include an ambiguous-account case, denied request, permission failure and successful reconciliation. Explain programming decisions, approval boundaries and connector limits. Promote the capability to Verified only when the required original test evidence has been inspected.
+Use the Leaver's conditional workflow, Sarah's role-based removal and John's direct-grant cleanup as the current reported engineering story. Retain original sanitized source and target readback when available, then retest the final no-account branch. Continue ambiguous-account, denied-request, permission-failure and recovery exercises separately. Explain which outcomes have captured evidence and which are currently owner-reported; repository syntax checks do not establish runtime success.

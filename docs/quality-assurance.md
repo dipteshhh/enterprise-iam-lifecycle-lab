@@ -1,4 +1,25 @@
-# Foundation quality assurance
+# Repository quality assurance
+
+## November 26, 2026 lifecycle documentation update
+
+The existing GitHub `main` head matched the inspected local baseline `faef5f78225b26590edd7cea2da89c44b55173a7`. Documentation and examples were prepared in a separate local checkout/branch; original source and captured evidence were retained. There were no baseline Actions or deployable lifecycle/application exports to modify.
+
+| Check | Actual result and scope |
+|---|---|
+| Repository validator | Passed for all Git-tracked and nonignored publication candidates: relative file links, Markdown fences, two standalone XML documents, synthetic CSV invariants and heuristic credential/prohibited-artifact checks. |
+| Mermaid | All **26** Markdown diagrams parsed with Mermaid **11.12.2** and JSDOM **26.1.0** from temporary tooling outside the repository. No render/screenshot quality claim. |
+| Leaver XML/source consistency | `python3 scripts/python/build_leaver_workflow.py --check` passed; embedded source matches seven canonical reconstructed `.bsh` files. No original export is claimed. |
+| XML structure / branches | Offline inspection confirmed **8 variables, 12 sibling top-level Steps, valid transition targets and 3 distinct LCM argument sets**. Eight modeled Boolean decision combinations reached Stop with the specified skip/convergence behavior; this did not execute BeanShell conditions or IIQ. |
+| XML documentation snippets | All **3** fenced XML fragments in Markdown parsed as well formed. Standalone example XML also parsed; no vendor DTD/schema validation or import was performed. |
+| BeanShell syntax | **16 source blocks** parsed without evaluation using locally available BeanShell **2.1.8** on JDK **23**: seven canonical files and nine XML Source blocks, including two plan guards. Syntax parsing does not establish API resolution or runtime compatibility. No proprietary library was copied into the repository. |
+| SQL | Manually reviewed the new verifier as read-only SELECT/CTE statements using exact supplied account names; it preserves missing-account visibility and avoids role/user writes. No Oracle execution was performed. |
+| Preservation / diff | All pre-existing paths retained; **31 existing non-Markdown source/data/XML/capture/policy artifacts** compared byte-identical to baseline. Earlier Joiner/Oracle source and four sanitized captures remain unchanged. Changed documentation updates current status or adds clearly scoped links. |
+| Publication hygiene | Reviewed changed text, reconstructed XML/BeanShell, SQL and all publication candidates for credentials, secret-like literals, connection secrets, personal data and proprietary artifacts. Heuristic checks passed; no new screenshots/logs or original runtime evidence were fabricated. |
+| Git whitespace | `git diff --check` passed; the complete staged diff and new-file inventory were reviewed before publication. |
+
+No IdentityIQ import, workflow execution, connector call, Oracle SQL execution, aggregation or identity refresh was performed during this repository update. The reported Leaver outcomes remain attributed to the owner in [E-005](evidence/leaver-2026-11-26.md); [E-004](evidence/oracle-create-modify-2026-11-20.md) preserves separately captured earlier runtime evidence. Mary's complete final no-account regression and Jane's entitlement recovery remain outstanding.
+
+## Preserved foundation quality record
 
 Review date: **2026-11-20**. This record covers repository artifacts, not a running IAM deployment. [Capability status](implementation-status.md) and [evidence scope](evidence/README.md) remain authoritative.
 

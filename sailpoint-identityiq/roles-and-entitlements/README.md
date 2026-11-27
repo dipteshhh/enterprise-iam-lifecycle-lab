@@ -1,5 +1,7 @@
 # Business roles, IT roles, and Oracle access
 
+**Later deprovisioning test:** Sarah Miller's November 26 [Leaver scenario](../../labs/leaver/test-scenarios.md) used **`dba - Business` → required `dba - IT` → five Oracle roles**. The owner reports successful deassignment, all five role grants revoked, and subsequent aggregation/refresh reconciliation. This is a different specifically named configuration from the historical `DBA Business → DBA IT → DBA` example below. Do not rename or conflate them. [Implementation details and limits](../../labs/leaver/implementation.md).
+
 **Status: Previously Completed, Evidence Pending.** The maintainer explored Business Roles, IT Roles, Oracle entitlements, assignment behavior, refresh, and job-title assignment. No original role definitions or successful automatic-provisioning trace were inspected.
 
 ## Objective and business requirement

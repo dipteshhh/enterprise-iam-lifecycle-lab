@@ -1,6 +1,18 @@
-# Joiner, mover and leaver implementation plan
+# Joiner, mover and leaver lifecycle
 
-**Status: In Progress for joiner study/design; Planned for practical mover/leaver automation.** All flows below are proposed. No complete lifecycle has been executed or verified for this repository.
+## Current status — November 26, 2026
+
+| Lifecycle | Current owner-reported status | Documentation |
+|---|---|---|
+| Joiner | Implemented and tested | [Preserved work and current source/evidence limits](../labs/joiner/README.md) |
+| Mover | Planned | Broader design below; no execution claimed |
+| Leaver | Implemented, with primary provisioning scenarios tested | [Implemented lab design](../labs/leaver/README.md), [conditional workflow](../labs/leaver/workflow-design.md), [four tests](../labs/leaver/test-scenarios.md) |
+
+The Leaver responds to `employmentStatus` Active → Terminated after HR aggregation and Identity Refresh with Process Events. It locks discovered Oracle accounts, removes assigned Business Roles, then reads current Oracle account data through the connector to remove remaining `ROLES` and `SYSTEM_PRIVILEGES`. Mary's complete final no-account path still needs regression testing. [E-005](../docs/evidence/leaver-2026-11-26.md) records source/evidence gaps.
+
+## Preserved broader lifecycle design
+
+The original planning material below remains a **proposed broader design**, including pre-hire activation, session revocation, retention, automated exceptions and multi-application coverage. Those broader controls are not established by the reported Joiner status or Oracle Leaver tests. The final implemented twelve-step Leaver is documented separately above.
 
 ## Objective, business requirement and prerequisites
 
@@ -66,7 +78,7 @@ Disablement, session revocation, entitlement removal and deletion are different 
 5. Implement mover additions/removals and verify shared-role dependencies.
 6. Implement leaver disablement first, then target-specific session/access removal and retention, including failure escalation.
 
-Expected behavior is defined in [test scenarios](test-scenarios.md). Actual results: not run. There is no importable lifecycle configuration here. Avoid duplicate event handling with persistent request keys and readback before retry; serialize conflicting changes for a person and record partial target failures rather than pretending cross-system rollback is atomic.
+Expected broader behavior is defined in [test scenarios](test-scenarios.md). Those broader acceptance scenarios were originally not run; the current narrower Leaver outcomes are in the [Leaver test matrix](../labs/leaver/test-scenarios.md). No original import-ready lifecycle export is supplied; added Leaver XML is reconstructed/unexecuted. Avoid duplicate event handling with persistent request keys and readback before retry; serialize conflicting changes for a person and record partial target failures rather than pretending cross-system rollback is atomic.
 
 ## Additional planned scenarios
 
@@ -82,4 +94,4 @@ Expected behavior is defined in [test scenarios](test-scenarios.md). Actual resu
 | Dormant accounts | Reliable activity evidence, exclusions and approved remediation |
 | Service accounts | Named owner, purpose, credential rotation, noninteractive use and retirement criteria |
 
-Security: use synthetic identities, least-privilege connectors and reviewed logs. Limitations: exact IIQ version, connector schema, lifecycle event configuration and downstream permissions are unverified. Next improvement: complete the two conditional Oracle branches and collect evidence before expanding to AD or cloud activation.
+Security: use synthetic identities, least-privilege connectors and reviewed logs. Exact current lifecycle exports, connector configuration and downstream permissions have not been inspected. Next improvement: retest the final no-Oracle-account Leaver branch and retain original sanitized evidence before expanding to AD or cloud activation.

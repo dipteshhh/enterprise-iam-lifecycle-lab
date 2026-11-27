@@ -1,5 +1,13 @@
 # Work in progress: conditional Oracle access workflow
 
+## Later November 26 implementation report
+
+The owner reports modifying the custom Oracle provisioning workflow to place requested roles on the **same Create AccountRequest**. Jane Doe's account creation succeeded but role provisioning failed because `ANALYST` was missing; aggregation subsequently discovered/correlated the account. After `CREATE ROLE ANALYST`, the same implementation succeeded for John Doe. [Detailed partial-provisioning case](../../../labs/leaver/troubleshooting.md). The revised original source and complete custom-form regression evidence were not supplied; Jane's entitlement recovery remains planned.
+
+The design and limitations below preserve the earlier work. They do not override this later reported Create-with-roles test, nor does that test establish every original form, authorization, approval, race or recovery branch. The November 21 [Create-plus-Modify construction example](../../../sailpoint-iiq/provisioning/README.md) remains an unchanged separate exercise.
+
+## Preserved earlier design
+
 **Status: In Progress.** The owner has experimented with forms, variables, workflow XML, scripts, logging, and provisioning-plan composition. No original workflow export, request trace, connector result, or target verification has been inspected. The design below is newly authored from that narrative. No end-to-end success is claimed.
 
 ## Objective and business requirement

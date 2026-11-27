@@ -1,0 +1,16 @@
+// RECONSTRUCTED example; not original exported source or IIQ-tested.
+// Inputs: context, identityName. Return -> hasOracleAccount. No target read/write.
+import sailpoint.object.Identity;
+import sailpoint.object.Link;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+if (iden.getLinks() != null) {
+    for (Object value : iden.getLinks()) {
+        Link link = (Link) value;
+        if (link != null && "Oracle Application".equals(link.getApplicationName())) {
+            return Boolean.TRUE;
+        }
+    }
+}
+return Boolean.FALSE;

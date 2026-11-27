@@ -1,5 +1,7 @@
 # Simulated authoritative HR CSV
 
+**Current lifecycle usage:** the [November 26 Leaver Lab](../../../labs/leaver/README.md) uses **Northstar Workday HR**, simulated by authoritative CSV, to map `employmentStatus` and trigger Active → Terminated processing after Northstar Account Aggregation and Identity Refresh with Process Events. The older example fixtures below are preserved and were not silently replaced with the Leaver employees. [Current evidence limits](../../../docs/evidence/leaver-2026-11-26.md).
+
 **Status: Previously Completed, Evidence Pending.** Historical sources were ACMEE HR, Practice CSV, NorthStar HR CSV, Friends CSV, and Northstar Workday HR. All are lab names; Northstar Workday HR was simulated with CSV. No Workday API integration is claimed.
 
 ## Objective and business requirement

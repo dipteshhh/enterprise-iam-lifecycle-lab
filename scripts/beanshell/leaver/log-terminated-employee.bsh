@@ -1,0 +1,13 @@
+// RECONSTRUCTED from the owner's lab narrative. Not original/exported/IIQ-tested.
+// Workflow inputs: context, identityName. Reads IIQ and logs minimal metadata.
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sailpoint.object.Identity;
+
+Identity iden = context.getObjectByName(Identity.class, identityName);
+if (iden == null) throw new IllegalArgumentException("Identity was not found");
+Logger loggerDex = LogManager.getLogger("loggerDex");
+loggerDex.info("Northstar Leaver subject=" + iden.getName()
+    + "; employmentStatus=" + iden.getAttribute("employmentStatus"));
+// Logging proves this step was reached, not successful provisioning.
+return null;
